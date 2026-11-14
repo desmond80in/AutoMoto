@@ -206,6 +206,7 @@ td.r,th.r{text-align:right}
 .timeline{display:grid;gap:10px}
 .visit{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;text-align:left;width:100%}
 .visit:hover{border-color:var(--accent)}
+.visit-veh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .visit .d{font-weight:700;line-height:1.25}
 .visit .d small{display:block;font-weight:500;color:var(--muted);font-size:13px}
 @media (max-width:560px){.visit{grid-template-columns:1fr}.cell{grid-template-columns:120px 1fr}}

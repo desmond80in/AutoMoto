@@ -198,6 +198,17 @@ function PickCustomerStep({ s, dispatch }: { s: KioskState; dispatch: Dispatch }
 }
 
 function VehicleTile({ v, onClick }: { v: KioskVehicle; onClick: () => void }) {
+  if (v.in_shop)
+    return (
+      <button type="button" className="tile" disabled aria-describedby={`in-shop-${v.id}`}>
+        <PlateChip plate={v.plate} />
+        <span className="t-title">{vehicleName(v)}</span>
+        <span className="tag">Already checked in</span>
+        <span className="muted small" id={`in-shop-${v.id}`}>
+          This vehicle is already with us. Please see the front desk.
+        </span>
+      </button>
+    );
   return (
     <button type="button" className="tile" onClick={onClick}>
       <PlateChip plate={v.plate} />
@@ -249,26 +260,34 @@ function WhoStep({ s, dispatch }: { s: KioskState; dispatch: Dispatch }) {
           <p className="muted">We found this vehicle.</p>
         </div>
       </div>
-      <p className="lede" style={{ marginTop: 18 }}>
-        Who's checking it in today?
-      </p>
-      <div className="tiles">
-        {s.owners.map((o) => (
-          <button
-            key={o.customer_id}
-            type="button"
-            className="tile"
-            onClick={() => dispatch({ type: 'chooseOwner', owner: o })}
-          >
-            <span className="t-title">{o.masked_name}</span>
-            <span className="muted">Phone ending {o.phone_last4}</span>
-            {o.role === 'co_owner' && <span className="tag">Co-owner</span>}
-          </button>
-        ))}
-        <button type="button" className="tile add" onClick={() => dispatch({ type: 'notListed' })}>
-          I'm not listed
-        </button>
-      </div>
+      {v.in_shop ? (
+        <p className="lede" style={{ marginTop: 18 }}>
+          This vehicle is already checked in. Please see the front desk if you'd like to add something.
+        </p>
+      ) : (
+        <>
+          <p className="lede" style={{ marginTop: 18 }}>
+            Who's checking it in today?
+          </p>
+          <div className="tiles">
+            {s.owners.map((o) => (
+              <button
+                key={o.customer_id}
+                type="button"
+                className="tile"
+                onClick={() => dispatch({ type: 'chooseOwner', owner: o })}
+              >
+                <span className="t-title">{o.masked_name}</span>
+                <span className="muted">Phone ending {o.phone_last4}</span>
+                {o.role === 'co_owner' && <span className="tag">Co-owner</span>}
+              </button>
+            ))}
+            <button type="button" className="tile add" onClick={() => dispatch({ type: 'notListed' })}>
+              I'm not listed
+            </button>
+          </div>
+        </>
+      )}
       <div className="row" style={{ marginTop: 18 }}>
         <button type="button" className="btn ghost" onClick={() => dispatch({ type: 'reset' })}>
           Start over

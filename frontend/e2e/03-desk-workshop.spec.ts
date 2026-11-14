@@ -6,7 +6,7 @@ import { ANA, expectNoSeriousA11y, OWNER, SAM, sign, signIn, signInAs } from './
 async function kioskCheckIn(page: Page, phone: string, concern: string, name: string) {
   await page.getByLabel('Phone number or licence plate').fill(phone);
   await page.getByRole('button', { name: 'Find my records' }).click();
-  await page.locator('.tile').first().click();
+  await page.locator('.tile:not([disabled])').first().click();
   await page.getByLabel('Concern 1').fill(concern);
   await page.getByLabel('Printed name').fill(name);
   await sign(page);
@@ -137,6 +137,16 @@ test('desk tabs, find and drawers', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'Priya Sharma' })).toHaveCount(0);
   await cq.fill('cjwn');
   await expect(page.getByText('Showing 1–1 of 1 customers')).toBeVisible();
+  // Visit history names the vehicle of each visit; a vehicle in the shop offers its open job, not a second one
+  await page.getByRole('cell', { name: 'Daniel Okafor' }).click();
+  const cust = page.getByRole('dialog');
+  await expect(cust.locator('.visit').filter({ hasText: '2021 Toyota RAV4' }).first()).toBeVisible();
+  await expect(cust.locator('.visit').filter({ hasText: '2014 Ford F-150' }).first()).toBeVisible();
+  await page.goto('/desk/customers?vehicle=00000000-0000-0000-0000-00000000d004');
+  await expect(page.getByRole('button', { name: /^Open job #/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: '+ Start work order' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close' }).click();
+  await cq.fill('cjwn');
   await cq.fill('nobody-here');
   await expect(page.getByText('No customers match “nobody-here”.')).toBeVisible();
   await expectNoSeriousA11y(page, 'customers search');

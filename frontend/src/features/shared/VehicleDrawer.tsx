@@ -37,6 +37,7 @@ export function VehicleDrawer({ id }: { id: string }) {
   if (!data) return null;
   const v = data.vehicle;
   const cur = data.current_owners;
+  const openJob = data.history.find((w) => w.status !== 'picked_up' && w.status !== 'cancelled');
 
   const apply = (d: VehicleDetail | undefined) => {
     if (!d) return;
@@ -97,41 +98,52 @@ export function VehicleDrawer({ id }: { id: string }) {
         </div>
       </div>
 
-      <form
-        className="row"
-        autoComplete="off"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void startWorkOrder();
-        }}
-      >
-        {cur.length > 0 && (
-          <>
-            <label className="sr" htmlFor="wo-concern">
-              Customer concern for the new work order
-            </label>
-            <input id="wo-concern" style={{ maxWidth: 340 }} placeholder="Customer concern, e.g. Oil change" value={startConcern} onChange={(e) => setStartConcern(e.target.value)} />
-          </>
-        )}
-        {cur.length > 1 && (
-          <>
-            <label className="sr" htmlFor="wo-for">
-              Customer for the new work order
-            </label>
-            <select id="wo-for" style={{ width: 'auto' }} value={startFor || cur[0]!.customer_id} onChange={(e) => setStartFor(e.target.value)}>
-              {cur.map((o) => (
-                <option key={o.customer_id} value={o.customer_id}>
-                  {o.name}
-                </option>
-              ))}
-            </select>
-          </>
-        )}
-        <button className="btn primary" disabled={!cur.length || !startConcern.trim() || busy === 'start'}>
-          + Start work order
-        </button>
-        {!cur.length && <span className="hint">Add an owner first.</span>}
-      </form>
+      {openJob ? (
+        <div className="panel row">
+          <span className="grow">
+            <b>In the shop</b> on work order <span className="mono">#{openJob.order_no}</span>. Add new concerns to that job.
+          </span>
+          <button type="button" className="btn primary" onClick={() => nav.open('job', openJob.id)}>
+            Open job #{openJob.order_no}
+          </button>
+        </div>
+      ) : (
+        <form
+          className="row"
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void startWorkOrder();
+          }}
+        >
+          {cur.length > 0 && (
+            <>
+              <label className="sr" htmlFor="wo-concern">
+                Customer concern for the new work order
+              </label>
+              <input id="wo-concern" style={{ maxWidth: 340 }} placeholder="Customer concern, e.g. Oil change" value={startConcern} onChange={(e) => setStartConcern(e.target.value)} />
+            </>
+          )}
+          {cur.length > 1 && (
+            <>
+              <label className="sr" htmlFor="wo-for">
+                Customer for the new work order
+              </label>
+              <select id="wo-for" style={{ width: 'auto' }} value={startFor || cur[0]!.customer_id} onChange={(e) => setStartFor(e.target.value)}>
+                {cur.map((o) => (
+                  <option key={o.customer_id} value={o.customer_id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+          <button className="btn primary" disabled={!cur.length || !startConcern.trim() || busy === 'start'}>
+            + Start work order
+          </button>
+          {!cur.length && <span className="hint">Add an owner first.</span>}
+        </form>
+      )}
 
       <div className="sec">
         <h3>Current owners</h3>

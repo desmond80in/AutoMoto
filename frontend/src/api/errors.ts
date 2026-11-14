@@ -3,7 +3,7 @@ import { fmtPlate } from '../lib/format';
 export const ERROR_CODES = [
   'NOT_STAFF', 'SESSION_INVALID', 'SESSION_EXPIRED', 'ROLE_NOT_ALLOWED', 'QUICK_SWITCH_NOT_ALLOWED',
   'PIN_INVALID', 'PIN_LOCKED', 'PIN_NOT_SET', 'VALIDATION', 'NOT_FOUND', 'PLATE_TAKEN', 'PHONE_TAKEN',
-  'EMAIL_TAKEN', 'VERSION_CONFLICT', 'INVALID_TRANSITION', 'LAST_ADMIN', 'SELF_DEACTIVATE', 'NOT_CURRENT_OWNER',
+  'EMAIL_TAKEN', 'VERSION_CONFLICT', 'INVALID_TRANSITION', 'LAST_ADMIN', 'SELF_DEACTIVATE', 'NOT_CURRENT_OWNER', 'VEHICLE_IN_SHOP',
   'RATE_LIMITED', 'NOT_UNDERSTOOD', 'AI_UNAVAILABLE',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number] | 'UNKNOWN';
@@ -41,6 +41,8 @@ export interface MessageContext {
   /** Text the person typed, for NOT_FOUND in the scanner. */
   query?: string;
   plate?: string;
+  /** Wording for customers at the kiosk (no order numbers). */
+  kiosk?: boolean;
 }
 
 /** User-facing message (SPEC-FRONTEND section 10). */
@@ -65,6 +67,9 @@ export function errorMessage(e: unknown, ctx: MessageContext = {}): string {
     case 'LAST_ADMIN': return 'Keep at least one active administrator.';
     case 'SELF_DEACTIVATE': return "You can't deactivate your own account.";
     case 'NOT_CURRENT_OWNER': return "This customer isn't a current owner of the vehicle.";
+    case 'VEHICLE_IN_SHOP': return ctx.kiosk
+      ? 'This vehicle is already checked in. Please see the front desk.'
+      : `This vehicle already has an open work order${detail ? ` #${detail}` : ''}. Add the new concern to that job instead.`;
     case 'RATE_LIMITED': return 'Too many requests just now. Wait a minute and try again, or fill in the form below.';
     case 'NOT_UNDERSTOOD': return "We couldn't find a vehicle problem in that. Add a little more detail, or fill in the form below.";
     case 'AI_UNAVAILABLE': return "We couldn't read that. Try again, or fill in the form below.";

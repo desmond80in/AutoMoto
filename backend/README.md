@@ -113,6 +113,7 @@ Raised by RPCs as the error message; PostgREST returns `{ code: "P0001", message
 | `INVALID_TRANSITION` | status change not allowed from the current status |
 | `LAST_ADMIN`, `SELF_DEACTIVATE` | admin guards |
 | `NOT_CURRENT_OWNER` | customer isn't a current owner of the vehicle |
+| `VEHICLE_IN_SHOP` | the vehicle already has an open work order (detail: its order number) |
 
 Intake API: `400 VALIDATION`, `401` (no/invalid token, from API Gateway), `403 ROLE_NOT_ALLOWED`, `422 NOT_UNDERSTOOD`,
 `429 RATE_LIMITED`, `502 AI_UNAVAILABLE`.
@@ -133,8 +134,8 @@ Intake API: `400 VALIDATION`, `401` (no/invalid token, from API Gateway), `403 R
 | `kiosk_register(p_session, p_customer, p_vehicle)` | kiosk | new/returning customer + vehicle |
 | `kiosk_add_vehicle(p_session, p_customer_id, p_vehicle)` | kiosk | add a vehicle |
 | `kiosk_link_owner(p_session, p_vehicle_id, p_customer, p_mode)` | kiosk | bought it / co-owner (unverified) |
-| `kiosk_check_in(p_session, p)` | kiosk | create the work order with signature |
-| `create_work_order(p_session, p)` | frontdesk, admin | staff-created work order |
+| `kiosk_check_in(p_session, p)` | kiosk | create the work order with signature; one open job per vehicle |
+| `create_work_order(p_session, p)` | frontdesk, admin | staff-created work order; one open job per vehicle |
 | `save_work_order(p_session, p_id, p_expected_version, p_patch)` | frontdesk, workshop, admin | edit details, concerns, items |
 | `job_transition(p_session, p_id, p_to, p_expected_version, p_reason?)` | per transition | lifecycle step, audited; `cancelled` from any open stage by frontdesk/admin, reason required |
 | `get_work_order(p_id)` | frontdesk, workshop, admin | full job |

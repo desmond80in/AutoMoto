@@ -34,7 +34,11 @@ insert into public.vehicles (id, shop_id, plate, vin, year, make, model, engine,
   ('00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000a001', 'CAAB214', '2HKRW2H85KH601234', 2019, 'Honda', 'CR-V', '1.5L turbo I4', pg_temp.at(1500)),
   ('00000000-0000-0000-0000-00000000d002', '00000000-0000-0000-0000-00000000a001', 'BXRT552', '2HGFC2F59GH512345', 2016, 'Honda', 'Civic', '2.0L I4', pg_temp.at(2400)),
   ('00000000-0000-0000-0000-00000000d003', '00000000-0000-0000-0000-00000000a001', 'DKPL870', '2T3W1RFV8MC123456', 2021, 'Toyota', 'RAV4', '2.5L I4', pg_temp.at(1100)),
-  ('00000000-0000-0000-0000-00000000d004', '00000000-0000-0000-0000-00000000a001', 'CJWN309', '1FTFW1EF4EFA12345', 2014, 'Ford', 'F-150', '5.0L V8', pg_temp.at(1000));
+  ('00000000-0000-0000-0000-00000000d004', '00000000-0000-0000-0000-00000000a001', 'CJWN309', '1FTFW1EF4EFA12345', 2014, 'Ford', 'F-150', '5.0L V8', pg_temp.at(1000)),
+  ('00000000-0000-0000-0000-00000000d005', '00000000-0000-0000-0000-00000000a001', 'BNTR418', 'JM3KFBDM5K0612345', 2019, 'Mazda', 'CX-5', '2.5L I4', pg_temp.at(300)),
+  ('00000000-0000-0000-0000-00000000d006', '00000000-0000-0000-0000-00000000a001', 'BTRL562', '2T1BURHE5LJ123987', 2020, 'Toyota', 'Corolla', '1.8L I4', pg_temp.at(700)),
+  ('00000000-0000-0000-0000-00000000d007', '00000000-0000-0000-0000-00000000a001', 'BKMR735', 'KMHD84LF5HU345678', 2017, 'Hyundai', 'Elantra', '2.0L I4', pg_temp.at(250)),
+  ('00000000-0000-0000-0000-00000000d008', '00000000-0000-0000-0000-00000000a001', 'BRVN204', '5FNRL6H82NB012345', 2022, 'Honda', 'Odyssey', '3.5L V6', pg_temp.at(200));
 
 insert into public.vehicle_owners (shop_id, vehicle_id, customer_id, role, from_at, to_at, ended_reason, verified, source, created_by) values
   ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000c001', 'owner', pg_temp.at(1500), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
@@ -42,7 +46,11 @@ insert into public.vehicle_owners (shop_id, vehicle_id, customer_id, role, from_
   ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d002', '00000000-0000-0000-0000-00000000c002', 'owner', pg_temp.at(420, 11), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
   ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d003', '00000000-0000-0000-0000-00000000c003', 'owner', pg_temp.at(1100), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
   ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d003', '00000000-0000-0000-0000-00000000c004', 'co_owner', pg_temp.at(540), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
-  ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d004', '00000000-0000-0000-0000-00000000c003', 'owner', pg_temp.at(1000), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001');
+  ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d004', '00000000-0000-0000-0000-00000000c003', 'owner', pg_temp.at(1000), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
+  ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d005', '00000000-0000-0000-0000-00000000c004', 'owner', pg_temp.at(300), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
+  ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d006', '00000000-0000-0000-0000-00000000c001', 'owner', pg_temp.at(700), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
+  ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d007', '00000000-0000-0000-0000-00000000c002', 'owner', pg_temp.at(250), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001'),
+  ('00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000d008', '00000000-0000-0000-0000-00000000c003', 'owner', pg_temp.at(200), null, null, true, 'staff', '00000000-0000-0000-0000-00000000b001');
 
 -- Work orders. Columns: id, vehicle, customer, created, status, odometer, order seq, lifecycle times, people.
 create temp table seed_wo (
@@ -68,12 +76,12 @@ from (values
   ('00000000-0000-0000-0000-0000000e0004', '00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000c001', pg_temp.at(352, 10, 20), 'picked_up', 41200, 1, '', null, null),
   ('00000000-0000-0000-0000-0000000e0005', '00000000-0000-0000-0000-00000000d003', '00000000-0000-0000-0000-00000000c004', pg_temp.at(176, 9, 50), 'picked_up', 30150, 1, '', null, null),
   ('00000000-0000-0000-0000-0000000e0006', '00000000-0000-0000-0000-00000000d003', '00000000-0000-0000-0000-00000000c003', pg_temp.at(1, 15, 40), 'waiting_parts', 44905, 1, 'Heat shield ordered from the dealer, arriving tomorrow morning.', null, 'soon'),
-  ('00000000-0000-0000-0000-0000000e0007', '00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000c001', pg_temp.at(0, 8, 12), 'in_progress', 52870, 1, '',
+  ('00000000-0000-0000-0000-0000000e0007', '00000000-0000-0000-0000-00000000d006', '00000000-0000-0000-0000-00000000c001', pg_temp.at(0, 8, 12), 'in_progress', 52870, 1, '',
    '{"transcript":"so when I brake on the highway theres this grinding noise from the front like metal on metal its been about a week and getting worse and the battery light flickered once yesterday on the 407 then went off its around 53 thousand km","summary":"Front grinding when braking at highway speed for about a week, getting worse. Battery warning light flickered once yesterday, then went out.","when_it_happens":"Braking at highway speed","warning_lights":["Battery light (flickered once)"],"urgency":"unsafe","safety_note":"Possible metal-on-metal brake wear. Inspect front brakes before the vehicle is driven again.","questions":["Does the grinding happen at low speed too?","Did the battery light come on at start-up or while driving?"]}'::jsonb,
    'unsafe'),
   ('00000000-0000-0000-0000-0000000e0008', '00000000-0000-0000-0000-00000000d004', '00000000-0000-0000-0000-00000000c003', pg_temp.at(0, 8, 47), 'checked_in', 187330, 2, '', null, 'soon'),
-  ('00000000-0000-0000-0000-0000000e0009', '00000000-0000-0000-0000-00000000d002', '00000000-0000-0000-0000-00000000c002', pg_temp.at(0, 8, 58), 'accepted', 126400, 3, '', null, 'routine'),
-  ('00000000-0000-0000-0000-0000000e0010', '00000000-0000-0000-0000-00000000d003', '00000000-0000-0000-0000-00000000c004', pg_temp.at(0, 7, 40), 'ready', 44910, 4, 'Wiper blades replaced, washer fluid topped up.', null, 'routine'),
+  ('00000000-0000-0000-0000-0000000e0009', '00000000-0000-0000-0000-00000000d007', '00000000-0000-0000-0000-00000000c002', pg_temp.at(0, 8, 58), 'accepted', 88400, 3, '', null, 'routine'),
+  ('00000000-0000-0000-0000-0000000e0010', '00000000-0000-0000-0000-00000000d005', '00000000-0000-0000-0000-00000000c004', pg_temp.at(0, 7, 40), 'ready', 61240, 4, 'Wiper blades replaced, washer fluid topped up.', null, 'routine'),
   ('00000000-0000-0000-0000-0000000e0011', '00000000-0000-0000-0000-00000000d004', '00000000-0000-0000-0000-00000000c003', pg_temp.at(30, 14, 10), 'cancelled', 185020, 1, 'Customer asked for a quote only.', null, null)
 ) as x(id, vehicle, customer, created, status, odo, n, notes, intake, urgency);
 

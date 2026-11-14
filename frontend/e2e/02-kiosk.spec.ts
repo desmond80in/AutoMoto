@@ -13,6 +13,10 @@ test('3. returning customer by phone, AI fills concerns, signs and checks in', a
   await expect(page.getByRole('heading', { name: 'Welcome back, Priya.' })).toBeVisible();
   await expect(page.getByText('Sharma')).toHaveCount(0);
   await expectNoSeriousA11y(page, 'kiosk pick vehicle');
+  // The Corolla is already in the shop (job in progress): its tile can't be chosen.
+  const corolla = page.getByRole('button', { name: /Corolla/ });
+  await expect(corolla).toBeDisabled();
+  await expect(corolla).toContainText('Already checked in');
   await page.getByRole('button', { name: /CR-V/ }).click();
   await expect(page.getByText('Priya · Phone ending 0142')).toBeVisible();
   await page.getByLabel("Tell us what's wrong, in your own words").fill('When I brake on the highway there is a grinding noise. About 53 thousand km.');

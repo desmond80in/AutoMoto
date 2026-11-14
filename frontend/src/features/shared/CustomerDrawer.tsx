@@ -105,7 +105,7 @@ export function CustomerDrawer({ id }: { id: string }) {
         {data.visits.length ? (
           <div className="timeline">
             {data.visits.map((w) => (
-              <VisitRow key={w.id} w={w} prevOwner={false} onOpen={() => nav.open('job', w.id)} />
+              <VisitRow key={w.id} w={w} prevOwner={false} showVehicle onOpen={() => nav.open('job', w.id)} />
             ))}
           </div>
         ) : (

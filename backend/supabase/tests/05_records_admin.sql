@@ -26,8 +26,8 @@ select is(public.search_all('dkpl870')->'vehicles'->0->'current_owners', '["Dani
 
 select is(jsonb_array_length(public.list_customers()->'items'), 4, 'list_customers');
 select is((public.list_customers()->>'total')::int, 4, 'list_customers total');
-select is((select x->'plates' from jsonb_array_elements(public.list_customers()->'items') x where x->>'name' = 'Daniel Okafor'), '["DKPL870", "CJWN309"]'::jsonb, 'customer plates');
-select is(jsonb_array_length(public.list_vehicles()->'items'), 4, 'list_vehicles');
+select is((select x->'plates' from jsonb_array_elements(public.list_customers()->'items') x where x->>'name' = 'Daniel Okafor'), '["DKPL870", "CJWN309", "BRVN204"]'::jsonb, 'customer plates');
+select is(jsonb_array_length(public.list_vehicles()->'items'), 8, 'list_vehicles');
 select is((select (x->>'owners_on_record')::int from jsonb_array_elements(public.list_vehicles()->'items') x where x->>'plate' = 'BXRT552'), 2, 'owners on record');
 
 -- customer search: name, phone digits, current plate; pages
@@ -46,9 +46,9 @@ select is(jsonb_array_length(public.list_customers(null, 1000, 0)->'items'), 4, 
 select is(public.list_vehicles('dkpl 870')->'items'->0->>'plate', 'DKPL870', 'vehicles: plate with space, lower case');
 select is((public.list_vehicles('C')->>'total')::int, 2, 'vehicles: partial plate (CAAB214, CJWN309; VINs need 6+ characters)');
 select is(public.list_vehicles('KH601234')->'items'->0->>'plate', 'CAAB214', 'vehicles: VIN');
-select is(public.list_vehicles(null, 1, 3)->'items'->0->>'plate', 'DKPL870', 'vehicles: last page, plate order');
+select is(public.list_vehicles(null, 1, 7)->'items'->0->>'plate', 'DKPL870', 'vehicles: last page, plate order');
 
-select is(jsonb_array_length(public.get_customer('00000000-0000-0000-0000-00000000c001')->'vehicles'), 1, 'get_customer: current vehicles');
+select is(jsonb_array_length(public.get_customer('00000000-0000-0000-0000-00000000c001')->'vehicles'), 2, 'get_customer: current vehicles (CR-V, Corolla)');
 select is(public.get_customer('00000000-0000-0000-0000-00000000c001')->'previous_vehicles'->0->>'plate', 'BXRT552', 'get_customer: previous vehicles');
 select is((public.get_customer('00000000-0000-0000-0000-00000000c001')->>'visit_count')::int, 4, 'get_customer: visits');
 select ok((public.get_customer('00000000-0000-0000-0000-00000000c001')->>'lifetime_total')::numeric > 0, 'get_customer: lifetime total');
@@ -57,7 +57,7 @@ select is(public.get_vehicle('00000000-0000-0000-0000-00000000d002')->'previous_
 select is((select count(*) from jsonb_array_elements(public.get_vehicle('00000000-0000-0000-0000-00000000d002')->'history') h
            where h->>'customer_name' = 'Priya Sharma' and (h->>'customer_was_owner_then')::boolean
              and not (h->>'customer_is_current_owner')::boolean), 2::bigint, 'history: previous owner visits flagged');
-select is((public.get_vehicle('00000000-0000-0000-0000-00000000d001')->>'last_odometer_km')::int, 52870, 'get_vehicle: last odometer');
+select is((public.get_vehicle('00000000-0000-0000-0000-00000000d006')->>'last_odometer_km')::int, 52870, 'get_vehicle: last odometer');
 select tests.reset();
 
 select tests.as_staff('sam.tech@example.com');

@@ -152,8 +152,19 @@ select tests.reset();
 
 -- ---------------------------------------------------------------- create_work_order
 select tests.as_staff('ana.desk@example.com');
-select is(public.create_work_order(:'fd', '{"vehicle_id":"00000000-0000-0000-0000-00000000d001","customer_id":"00000000-0000-0000-0000-00000000c001","concerns":["Oil change"]}')->>'source',
+select is(tests.err(format($$select public.create_work_order(%L, '{"vehicle_id":"00000000-0000-0000-0000-00000000d006","customer_id":"00000000-0000-0000-0000-00000000c001","concerns":["Oil change"]}')$$, :'fd')),
+          'VEHICLE_IN_SHOP', 'create_work_order refuses a vehicle that is in the shop (Corolla, e0007)');
+-- Mei's CX-5 (d005) is free: its ready job e0010 was picked up above
+select is(public.create_work_order(:'fd', '{"vehicle_id":"00000000-0000-0000-0000-00000000d005","customer_id":"00000000-0000-0000-0000-00000000c004","concerns":["Oil change"]}')->>'source',
           'staff', 'create_work_order source staff');
+select is(tests.err(format($$select public.create_work_order(%L, '{"vehicle_id":"00000000-0000-0000-0000-00000000d005","customer_id":"00000000-0000-0000-0000-00000000c004","concerns":["x"]}')$$, :'fd')),
+          'VEHICLE_IN_SHOP', 'second open job for the same vehicle refused');
+select tests.reset();
+select throws_ok($$insert into public.work_orders (shop_id, order_no, vehicle_id, customer_id, status, source)
+                  values ('00000000-0000-0000-0000-00000000a001', '999999-99', '00000000-0000-0000-0000-00000000d005',
+                          '00000000-0000-0000-0000-00000000c004', 'accepted', 'staff')$$,
+                 '23505', null, 'unique index backs the rule up even without the RPC');
+select tests.as_staff('ana.desk@example.com');
 select is(tests.err(format($$select public.create_work_order(%L, '{"vehicle_id":"00000000-0000-0000-0000-00000000d001","customer_id":"00000000-0000-0000-0000-00000000c003","concerns":["x"]}')$$, :'fd')),
           'NOT_CURRENT_OWNER', 'create_work_order needs a current owner');
 select tests.reset();

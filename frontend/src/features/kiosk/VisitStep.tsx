@@ -103,7 +103,7 @@ export function VisitStep({
       });
       dispatch({ type: 'done', result });
     } catch (x) {
-      toast(errorMessage(x), 'err');
+      toast(errorMessage(x, { kiosk: true }), 'err');
       setBusy(false);
     }
   };

@@ -14,6 +14,7 @@ export interface KioskVehicleRef {
   make: string;
   model: string;
   last_odometer_km: number | null;
+  in_shop?: boolean;
 }
 
 export interface KioskState {
@@ -66,6 +67,7 @@ const ref = (v: KioskVehicle): KioskVehicleRef => ({
   make: v.make,
   model: v.model,
   last_odometer_km: v.last_odometer_km,
+  in_shop: v.in_shop,
 });
 
 export const firstWord = (s: string) => s.trim().split(/\s+/)[0] ?? '';

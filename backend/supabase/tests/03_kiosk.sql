@@ -20,8 +20,8 @@ select is(public.kiosk_lookup(:'k', '416 555 0142')->>'match', 'customer', 'phon
 select is(public.kiosk_lookup(:'k', '1-416-555-0142')->'customer'->>'first_name', 'Priya', 'leading 1 stripped; first name only');
 select is(public.kiosk_lookup(:'k', '5550142')->>'match', 'customer', 'phone suffix (7 digits) -> customer');
 select is(public.kiosk_lookup(:'k', '4165550142')->'customer'->>'phone_last4', '0142', 'phone_last4');
-select is(jsonb_array_length(public.kiosk_lookup(:'k', '4165550142')->'vehicles'), 1, 'Priya: one current vehicle (Civic was sold)');
-select is(public.kiosk_lookup(:'k', '4165550142')->'vehicles'->0->>'plate', 'CAAB214', 'vehicle plate');
+select is(jsonb_array_length(public.kiosk_lookup(:'k', '4165550142')->'vehicles'), 2, 'Priya: CR-V and Corolla (Civic was sold)');
+select is((select array_agg(x->>'plate' order by x->>'plate') from jsonb_array_elements(public.kiosk_lookup(:'k', '4165550142')->'vehicles') x), array['BTRL562', 'CAAB214'], 'vehicle plates');
 select is((public.kiosk_lookup(:'k', '4165550142')->'vehicles'->0->>'last_odometer_km')::int, 52870, 'last odometer');
 select ok(public.kiosk_lookup(:'k', '4165550142')->'vehicles'->0 ? 'last_visit_at', 'last_visit_at present');
 -- privacy
@@ -41,7 +41,7 @@ select is(public.kiosk_lookup(:'k', '9999999999')->>'match', 'none', 'unknown ph
 
 -- kiosk_customer_vehicles
 select is(public.kiosk_customer_vehicles(:'k', '00000000-0000-0000-0000-00000000c003')->>'match', 'customer', 'customer_vehicles shape');
-select is(jsonb_array_length(public.kiosk_customer_vehicles(:'k', '00000000-0000-0000-0000-00000000c003')->'vehicles'), 2, 'Daniel has 2 vehicles');
+select is(jsonb_array_length(public.kiosk_customer_vehicles(:'k', '00000000-0000-0000-0000-00000000c003')->'vehicles'), 3, 'Daniel has 3 vehicles');
 select ok(public.kiosk_customer_vehicles(:'k', '00000000-0000-0000-0000-00000000c004')->'vehicles' @> '[{"role":"co_owner"}]', 'Mei is co-owner');
 select is(tests.err(format($$select public.kiosk_customer_vehicles(%L, '00000000-0000-0000-0000-0000000000ff')$$, :'k')), 'NOT_FOUND', 'unknown customer');
 
@@ -98,7 +98,7 @@ select is((select ended_reason from public.vehicle_owners o join public.customer
            where o.vehicle_id = '00000000-0000-0000-0000-00000000d002' and c.name = 'Marco Rossi'), 'Sold / transferred', 'previous owner ended as sold');
 select is((select verified from public.vehicle_owners o join public.customers c on c.id = o.customer_id
            where o.vehicle_id = '00000000-0000-0000-0000-00000000d002' and c.name = 'Tara Buyer'), false, 'kiosk transfer is unverified');
-select is((select count(*) from public.work_orders where vehicle_id = '00000000-0000-0000-0000-00000000d002'), 4::bigint, 'service history stays with the vehicle');
+select is((select count(*) from public.work_orders where vehicle_id = '00000000-0000-0000-0000-00000000d002'), 3::bigint, 'service history stays with the vehicle');
 select tests.as_staff('ana.desk@example.com');
 
 -- co_owner with known customer
@@ -113,6 +113,13 @@ select is(tests.err(format($$select public.kiosk_link_owner(%L, '00000000-0000-0
 -- kiosk_check_in
 select format('{"customer_id":"00000000-0000-0000-0000-00000000c001","vehicle_id":"00000000-0000-0000-0000-00000000d001","reasons":["mechanical","body"],"odometer_km":"53,100","concerns":["Brakes grind", "", "Door dent"],"intake":{"transcript":"brakes grind","summary":"Grinding.","urgency":"unsafe","safety_note":"Check brakes.","questions":["a","b","c"],"evil":"x"},"signed_name":"Priya Sharma","signature_path":"%s/2026/11/0b4f8c2e-6a1d-4c3e-9f7a-1234567890ab.png"}',
               '00000000-0000-0000-0000-00000000a001') as ci_body \gset
+-- one open job per vehicle: Priya's Corolla (d006) is in the shop on e0007; her CR-V (d001) is free
+select is((select x->>'in_shop' from jsonb_array_elements(public.kiosk_customer_vehicles(:'k', '00000000-0000-0000-0000-00000000c001')->'vehicles') x
+           where x->>'plate' = 'BTRL562'), 'true', 'kiosk tile says the vehicle is in the shop');
+select is((select x->>'in_shop' from jsonb_array_elements(public.kiosk_customer_vehicles(:'k', '00000000-0000-0000-0000-00000000c001')->'vehicles') x
+           where x->>'plate' = 'CAAB214'), 'false', 'a vehicle without an open job is not in the shop');
+select is(tests.err(format('select public.kiosk_check_in(%L, %L)', :'k', replace(replace(:'ci_body', '"53,100"', '53100'), '00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-00000000d006'))),
+          'VEHICLE_IN_SHOP', 'cannot check in a vehicle that is in the shop');
 select is(tests.err(format('select public.kiosk_check_in(%L, %L)', :'k', :'ci_body')), 'VALIDATION', 'odometer must be numeric');
 select replace(:'ci_body', '"53,100"', '53100') as ci_body \gset
 select public.kiosk_check_in(:'k', :'ci_body') as ci \gset
@@ -130,9 +137,18 @@ select is((select message from public.work_order_events where work_order_id = ((
 select is((select kind || staff_id::text from public.work_order_events where work_order_id = ((:'ci'::jsonb)->>'work_order_id')::uuid),
           'kiosk_check_in00000000-0000-0000-0000-00000000b002', 'event records the kiosk staff id');
 select tests.as_staff('ana.desk@example.com');
+select is(tests.err(format('select public.kiosk_check_in(%L, %L)', :'k', :'ci_body')), 'VEHICLE_IN_SHOP', 'second check-in of the same vehicle refused');
+select tests.reset();
+update public.work_orders set status = 'picked_up', picked_up_at = now()
+where vehicle_id = '00000000-0000-0000-0000-00000000d001' and status not in ('picked_up', 'cancelled');
+select tests.as_staff('ana.desk@example.com');
 -- order numbers are sequential (seed used -01..-04 today)
 select is(public.kiosk_check_in(:'k', :'ci_body')->>'order_no',
           to_char(now() at time zone 'America/Toronto', 'YYMMDD') || '-06', 'next order number is sequential');
+select tests.reset();
+update public.work_orders set status = 'picked_up', picked_up_at = now()
+where vehicle_id = '00000000-0000-0000-0000-00000000d001' and status not in ('picked_up', 'cancelled');
+select tests.as_staff('ana.desk@example.com');
 -- not an owner
 select is(tests.err(format('select public.kiosk_check_in(%L, %L)', :'k', replace(:'ci_body', '00000000-0000-0000-0000-00000000c001', '00000000-0000-0000-0000-00000000c004'))),
           'VALIDATION', 'customer must be current owner');

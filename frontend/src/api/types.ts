@@ -55,6 +55,8 @@ export const KioskVehicle = z.object({
   role: z.enum(['owner', 'co_owner']).optional(),
   last_visit_at: nstr,
   last_odometer_km: nnum,
+  /** Already has an open work order: it can't be checked in again. */
+  in_shop: z.boolean().optional(),
 });
 export type KioskVehicle = z.infer<typeof KioskVehicle>;
 
