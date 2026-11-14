@@ -9,6 +9,7 @@ export function CallbackPage() {
   const { boot } = useSession();
   const navigate = useNavigate();
   const [failed, setFailed] = useState(false);
+  const [detail, setDetail] = useState<string | null>(null);
   const once = useRef(false);
 
   useEffect(() => {
@@ -18,7 +19,10 @@ export function CallbackPage() {
       .handleCallback()
       .then(() => boot())
       .then(() => navigate('/', { replace: true }))
-      .catch(() => setFailed(true));
+      .catch((e: unknown) => {
+        setDetail(e instanceof Error ? e.message : null);
+        setFailed(true);
+      });
   }, [auth, boot, navigate]);
 
   if (failed)
@@ -27,6 +31,7 @@ export function CallbackPage() {
         <div className="card err-page stack-sm">
           <h1>Sign-in didn't finish.</h1>
           <p className="lede">This Google account may not be registered as staff. Ask the shop owner to add you, then try again.</p>
+          {detail && <p className="muted small">Details: {detail}</p>}
           <div>
             <a className="btn primary" href="/login">
               Back to sign-in
