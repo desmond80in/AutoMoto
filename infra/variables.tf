@@ -71,3 +71,21 @@ variable "log_retention_days" {
   type    = number
   default = 30
 }
+
+variable "supabase_publishable_key" {
+  description = "Supabase publishable (anon) key. Not a secret: the SMS Lambda calls sms_queue with it plus the staff member's token."
+  type        = string
+  default     = ""
+}
+
+variable "sms_origination_identity" {
+  description = "AWS End User Messaging SMS phone number ID or ARN to send customer texts from (HUMAN). Empty: texts are recorded as simulated, not sent."
+  type        = string
+  default     = ""
+}
+
+variable "sms_configuration_set" {
+  description = "Optional End User Messaging SMS configuration set name (delivery events)."
+  type        = string
+  default     = ""
+}

@@ -1,4 +1,4 @@
-# AI intake API: HTTP API with a Cognito JWT authorizer in front of the intake Lambda.
+# HTTP API with a Cognito JWT authorizer in front of the intake (AI) and sms Lambdas.
 resource "aws_apigatewayv2_api" "intake" {
   name          = "${local.name}-intake"
   protocol_type = "HTTP"
@@ -44,6 +44,23 @@ resource "aws_apigatewayv2_route" "intake" {
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }
 
+# Customer texts (front desk). The Lambda re-checks session, role and consent in the database.
+resource "aws_apigatewayv2_integration" "sms" {
+  api_id                 = aws_apigatewayv2_api.intake.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.fn["sms-api"].invoke_arn
+  payload_format_version = "2.0"
+  timeout_milliseconds   = 15000
+}
+
+resource "aws_apigatewayv2_route" "sms" {
+  api_id             = aws_apigatewayv2_api.intake.id
+  route_key          = "POST /sms/send"
+  target             = "integrations/${aws_apigatewayv2_integration.sms.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+}
+
 resource "aws_cloudwatch_log_group" "api" {
   name              = "/aws/apigateway/${local.name}-intake"
   retention_in_days = var.log_retention_days
@@ -65,9 +82,15 @@ resource "aws_apigatewayv2_stage" "default" {
 }
 
 resource "aws_lambda_permission" "api" {
+  for_each      = toset(["intake-api", "sms-api"])
   statement_id  = "AllowApiGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.fn["intake-api"].function_name
+  function_name = aws_lambda_function.fn[each.key].function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.intake.execution_arn}/*/*"
+}
+
+moved {
+  from = aws_lambda_permission.api
+  to   = aws_lambda_permission.api["intake-api"]
 }

@@ -63,6 +63,12 @@ insert into public.vehicle_owners (shop_id, vehicle_id, customer_id, role, from_
   (:'shop', '00000000-0000-0000-0000-00000000d010', '00000000-0000-0000-0000-00000000c006', 'owner', pg_temp.at(900), null, null, true, 'staff', :'owner'),
   (:'shop', '00000000-0000-0000-0000-00000000d011', '00000000-0000-0000-0000-00000000c007', 'owner', pg_temp.at(83, 10, 40), null, null, true, 'staff', :'owner');
 
+-- Text-message consent: most customers ticked the kiosk box; Marco Rossi did not.
+update public.customers set sms_opt_in = true, sms_opt_in_at = created_at, sms_opt_in_source = 'kiosk'
+where id in ('00000000-0000-0000-0000-00000000c001', '00000000-0000-0000-0000-00000000c003',
+             '00000000-0000-0000-0000-00000000c004', '00000000-0000-0000-0000-00000000c005',
+             '00000000-0000-0000-0000-00000000c006', '00000000-0000-0000-0000-00000000c007');
+
 -- Work orders. Columns: id, vehicle, customer, created, status, odometer, order seq, lifecycle times, people.
 create temp table seed_wo (
   id uuid, vehicle uuid, customer uuid, created timestamptz, status public.job_status, odo int, n int,

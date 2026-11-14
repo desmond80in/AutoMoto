@@ -24,6 +24,7 @@ update public.work_orders set tech_id = null where tech_id = '00000000-0000-0000
 update public.work_orders set received_by = null where received_by = '00000000-0000-0000-0000-00000000b003';
 update public.work_order_events set staff_id = null where staff_id = '00000000-0000-0000-0000-00000000b003';
 update public.vehicle_owners set created_by = null where created_by = '00000000-0000-0000-0000-00000000b003';
+update public.sms_messages set sent_by = null where sent_by = '00000000-0000-0000-0000-00000000b003';
 delete from public.device_sessions where staff_id = '00000000-0000-0000-0000-00000000b003';
 delete from public.pin_attempts where staff_id = '00000000-0000-0000-0000-00000000b003';
 delete from public.staff where id = '00000000-0000-0000-0000-00000000b003';

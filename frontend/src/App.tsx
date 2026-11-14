@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMemo, useRef } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { IntakeApi } from './api/intake';
+import { SmsApi } from './api/sms';
 import { Api } from './api/rpc';
 import { createSupabase } from './api/supabase';
 import { createAuth } from './auth/createAuth';
@@ -20,7 +21,7 @@ export function App({ cfg }: { cfg: AppConfig }) {
     const qc = new QueryClient({
       defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: true, staleTime: 5_000 }, mutations: { retry: 0 } },
     });
-    services.current = { cfg, auth, api: new Api(db, () => sessionStore.get()?.id ?? null), intake: new IntakeApi(cfg.apiUrl, auth), qc };
+    services.current = { cfg, auth, api: new Api(db, () => sessionStore.get()?.id ?? null), intake: new IntakeApi(cfg.apiUrl, auth), sms: new SmsApi(cfg.apiUrl, auth), qc };
   }
   const value = useMemo(() => services.current!, []);
   return (

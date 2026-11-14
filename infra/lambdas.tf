@@ -4,6 +4,32 @@ locals {
     cognito-pre-signup = { memory = 256, timeout = 5, secrets = [aws_ssm_parameter.secret["supabase_secret_key"].arn] }
     cognito-pre-token  = { memory = 256, timeout = 5, secrets = [aws_ssm_parameter.secret["supabase_secret_key"].arn] }
     intake-api         = { memory = 512, timeout = 20, secrets = [aws_ssm_parameter.secret["anthropic_api_key"].arn] }
+    sms-api            = { memory = 256, timeout = 15, secrets = [aws_ssm_parameter.secret["supabase_secret_key"].arn] }
+  }
+}
+
+locals {
+  lambda_env = {
+    cognito-pre-signup = {
+      SUPABASE_URL              = var.supabase_url
+      SUPABASE_SECRET_KEY_PARAM = aws_ssm_parameter.secret["supabase_secret_key"].name
+    }
+    cognito-pre-token = {
+      SUPABASE_URL              = var.supabase_url
+      SUPABASE_SECRET_KEY_PARAM = aws_ssm_parameter.secret["supabase_secret_key"].name
+    }
+    intake-api = {
+      ANTHROPIC_API_KEY_PARAM = aws_ssm_parameter.secret["anthropic_api_key"].name
+      ANTHROPIC_MODEL         = var.anthropic_model
+      RATE_LIMIT_TABLE        = aws_dynamodb_table.rate_limit.name
+    }
+    sms-api = {
+      SUPABASE_URL              = var.supabase_url
+      SUPABASE_PUBLISHABLE_KEY  = var.supabase_publishable_key
+      SUPABASE_SECRET_KEY_PARAM = aws_ssm_parameter.secret["supabase_secret_key"].name
+      SMS_ORIGINATION_IDENTITY  = var.sms_origination_identity
+      SMS_CONFIGURATION_SET     = var.sms_configuration_set
+    }
   }
 }
 
@@ -54,6 +80,14 @@ data "aws_iam_policy_document" "lambda" {
     }
   }
   dynamic "statement" {
+    for_each = each.key == "sms-api" ? [1] : []
+    content {
+      sid       = "SendCustomerTexts"
+      actions   = ["sms-voice:SendTextMessage"]
+      resources = ["*"]
+    }
+  }
+  dynamic "statement" {
     for_each = each.key == "intake-api" ? [1] : []
     content {
       sid       = "RateLimitCounter"
@@ -88,14 +122,7 @@ resource "aws_lambda_function" "fn" {
   memory_size      = each.value.memory
   timeout          = each.value.timeout
   environment {
-    variables = each.key == "intake-api" ? {
-      ANTHROPIC_API_KEY_PARAM = aws_ssm_parameter.secret["anthropic_api_key"].name
-      ANTHROPIC_MODEL         = var.anthropic_model
-      RATE_LIMIT_TABLE        = aws_dynamodb_table.rate_limit.name
-      } : {
-      SUPABASE_URL              = var.supabase_url
-      SUPABASE_SECRET_KEY_PARAM = aws_ssm_parameter.secret["supabase_secret_key"].name
-    }
+    variables = local.lambda_env[each.key]
   }
   depends_on = [aws_cloudwatch_log_group.lambda, aws_iam_role_policy_attachment.lambda_logs]
 }

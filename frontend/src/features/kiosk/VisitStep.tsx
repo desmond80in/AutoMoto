@@ -39,6 +39,7 @@ export function VisitStep({
   const [concerns, setConcerns] = useState<string[]>(['']);
   const [signedName, setSignedName] = useState('');
   const [agree, setAgree] = useState(false);
+  const [textMe, setTextMe] = useState(true);
   const [hasSig, setHasSig] = useState(false);
   const [story, setStory] = useState('');
   const [understood, setUnderstood] = useState<Intake | null>(null);
@@ -100,6 +101,7 @@ export function VisitStep({
         intake: understood ? { ...understood, transcript: story.trim() } : undefined,
         signed_name: signedName.trim(),
         signature_path: path,
+        sms_opt_in: textMe,
       });
       dispatch({ type: 'done', result });
     } catch (x) {
@@ -252,6 +254,12 @@ export function VisitStep({
         <label className="check">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
           <span>I've read the authorization above and agree to it.</span>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={textMe} onChange={(e) => setTextMe(e.target.checked)} />
+          <span>
+            Text me at the phone ending {c.phoneLast4} when my vehicle is ready or if the shop needs my OK. Reply STOP any time to stop.
+          </span>
         </label>
       </div>
       {errors.length > 0 && (

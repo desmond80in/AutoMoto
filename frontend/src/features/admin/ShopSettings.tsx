@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useApp } from '../../session/AppContext';
 import { useReady, useSession } from '../../session/SessionProvider';
-import { parseNumber } from '../../lib/normalize';
+import { fmtPhone } from '../../lib/format';
+import { isValidPhone, normPhone, parseNumber } from '../../lib/normalize';
 import { useAction } from '../shared/useAction';
 import { PinInput } from '../../components/PinInput';
 
@@ -10,7 +11,7 @@ export function ShopSettings() {
   const { me } = useReady();
   const { refreshMe } = useSession();
   const { busy, run } = useAction();
-  const [shop, setShop] = useState({ name: me.shop.name, hst: String(Math.round(me.shop.hst_rate * 10000) / 100), rate: String(me.shop.labour_rate) });
+  const [shop, setShop] = useState({ name: me.shop.name, hst: String(Math.round(me.shop.hst_rate * 10000) / 100), rate: String(me.shop.labour_rate), phone: me.shop.phone ? fmtPhone(me.shop.phone) : '' });
   const [pin, setPin] = useState({ a: '', b: '' });
   const [err, setErr] = useState<string | null>(null);
   const [pinErr, setPinErr] = useState<string | null>(null);
@@ -22,8 +23,9 @@ export function ShopSettings() {
     if (!shop.name.trim()) return setErr('Enter the shop name.');
     if (hst == null || hst < 0 || hst > 20) return setErr('HST must be between 0 and 20%.');
     if (rate == null || rate < 0 || rate > 1000) return setErr('The labour rate must be between $0 and $1,000 an hour.');
+    if (shop.phone.trim() && !isValidPhone(shop.phone)) return setErr('Enter a 10-digit phone number, or leave it blank.');
     setErr(null);
-    const r = await run('shop', () => api.updateShop({ name: shop.name.trim(), hst_rate: hst / 100, labour_rate: rate }), 'Shop settings saved.').catch(() => undefined);
+    const r = await run('shop', () => api.updateShop({ name: shop.name.trim(), hst_rate: hst / 100, labour_rate: rate, phone: shop.phone.trim() ? normPhone(shop.phone) : '' }), 'Shop settings saved.').catch(() => undefined);
     if (r) void refreshMe();
   };
 
@@ -57,6 +59,13 @@ export function ShopSettings() {
               Default labour rate ($/hr)
             </label>
             <input id="sh-rate" inputMode="decimal" value={shop.rate} onChange={(e) => setShop({ ...shop, rate: e.target.value })} />
+          </div>
+          <div className="field">
+            <label className="lbl" htmlFor="sh-phone">
+              Shop phone
+            </label>
+            <input id="sh-phone" inputMode="tel" autoComplete="tel" value={shop.phone} onChange={(e) => setShop({ ...shop, phone: e.target.value })} />
+            <span className="hint">Used in customer text messages.</span>
           </div>
         </div>
         {err && (

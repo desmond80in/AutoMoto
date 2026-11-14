@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const lambdas = ['cognito-pre-signup', 'cognito-pre-token', 'intake-api'];
+const lambdas = ['cognito-pre-signup', 'cognito-pre-token', 'intake-api', 'sms-api'];
 
 rmSync(join(root, 'dist'), { recursive: true, force: true });
 for (const name of lambdas) {
@@ -18,8 +18,8 @@ for (const name of lambdas) {
     format: 'esm',
     minify: true,
     sourcemap: false,
-    // AWS SDK v3 is provided by the Node.js 20 Lambda runtime.
-    external: ['@aws-sdk/*'],
+    // AWS SDK v3 is provided by the Node.js 20 Lambda runtime; sms-api bundles its SMS client so the version is pinned.
+    external: name === 'sms-api' ? [] : ['@aws-sdk/*'],
     banner: { js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);" },
     logLevel: 'warning',
   });

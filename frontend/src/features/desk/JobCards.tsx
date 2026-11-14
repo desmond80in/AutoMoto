@@ -29,6 +29,18 @@ export function WoCard({ w, onOpen }: { w: JobSummary; onOpen: () => void }) {
             <UrgencyPill urgency="unsafe" />
           </>
         )}
+        {w.approval_needed && (
+          <>
+            {' '}
+            <span className="pill t-warn">Approval needed</span>
+          </>
+        )}
+        {w.status === 'ready' && w.ready_texted && (
+          <>
+            {' '}
+            <span className="pill t-ok">Texted</span>
+          </>
+        )}
       </div>
       {w.first_concern && (
         <div className="concern-t">

@@ -17,6 +17,7 @@ import { useApp } from '../../session/AppContext';
 import { useReady } from '../../session/SessionProvider';
 import { REASON_LABELS } from '../kiosk/VisitStep';
 import { CancelJobDialog } from './CancelJobDialog';
+import { CustomerMessages } from './CustomerMessages';
 import { useAction } from './useAction';
 import { useDrawerNav } from './useDrawerNav';
 
@@ -270,7 +271,10 @@ export function JobDrawer({ id }: { id: string }) {
             {job.source === 'kiosk' ? ' at the check-in kiosk' : ' by the front desk'}
           </p>
         </div>
-        <StatusPill status={st} />
+        <div className="status-stack">
+          <StatusPill status={st} />
+          {job.approval_needed && <span className="pill t-warn">Approval needed</span>}
+        </div>
       </div>
       {st === 'cancelled' && (
         <div className="panel cancelled-note">
@@ -577,6 +581,8 @@ export function JobDrawer({ id }: { id: string }) {
           <p className="muted">Not signed at the kiosk. Get the customer's authorization before starting work.</p>
         )}
       </div>
+
+      {role !== 'kiosk' && <CustomerMessages job={job} dirty={dirty} onJob={applyJob} onRefresh={() => void refetch()} />}
 
       <div className="sec">
         <h3>History</h3>

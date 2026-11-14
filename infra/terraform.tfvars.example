@@ -5,3 +5,6 @@ google_client_id = "" # set after HUMAN H3, once the client secret is stored
 anthropic_model  = "claude-haiku-5-5"
 # custom_domain       = "app.example.ca"
 # acm_certificate_arn = "arn:aws:acm:us-east-1:<acct>:certificate/<id>"
+
+# supabase_publishable_key = "sb_publishable_..."
+# sms_origination_identity = "phone-..."   # HUMAN: AWS End User Messaging SMS number; empty = texts are simulated

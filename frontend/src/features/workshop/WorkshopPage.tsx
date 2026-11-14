@@ -33,6 +33,7 @@ function TechCard({ w, children }: { w: JobSummary; children: React.ReactNode })
         <PlateChip plate={w.plate} />
         <b>{vehicleName(w)}</b>
         {w.urgency === 'unsafe' && <UrgencyPill urgency="unsafe" />}
+        {w.approval_needed && <span className="pill t-warn">Approval needed</span>}
       </div>
       <ul className="concern-list">
         {w.concerns.slice(0, 3).map((c, i) => (

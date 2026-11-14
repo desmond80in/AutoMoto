@@ -4,7 +4,7 @@ export const ERROR_CODES = [
   'NOT_STAFF', 'SESSION_INVALID', 'SESSION_EXPIRED', 'ROLE_NOT_ALLOWED', 'QUICK_SWITCH_NOT_ALLOWED',
   'PIN_INVALID', 'PIN_LOCKED', 'PIN_NOT_SET', 'VALIDATION', 'NOT_FOUND', 'PLATE_TAKEN', 'PHONE_TAKEN',
   'EMAIL_TAKEN', 'VERSION_CONFLICT', 'INVALID_TRANSITION', 'LAST_ADMIN', 'SELF_DEACTIVATE', 'NOT_CURRENT_OWNER', 'VEHICLE_IN_SHOP',
-  'RATE_LIMITED', 'NOT_UNDERSTOOD', 'AI_UNAVAILABLE',
+  'RATE_LIMITED', 'NOT_UNDERSTOOD', 'AI_UNAVAILABLE', 'SMS_NOT_ALLOWED', 'SMS_UNAVAILABLE',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number] | 'UNKNOWN';
 
@@ -35,6 +35,7 @@ const FIELD_LABELS: Record<string, string> = {
   signature_path: 'signature', customer_id: 'customer', reasons: 'reason for visit', items: 'repair details',
   pickup_date: 'pick-up date', received_by: 'order received by', pin: 'PIN', roles: 'roles', reason: 'reason',
   quick_switch: 'switch without signing out', hst_rate: 'HST rate', labour_rate: 'labour rate', mode: 'connection',
+  body: 'message', approval_note: 'note', sms_opt_in: 'text messages', kind: 'message type',
 };
 
 export interface MessageContext {
@@ -43,6 +44,8 @@ export interface MessageContext {
   plate?: string;
   /** Wording for customers at the kiosk (no order numbers). */
   kiosk?: boolean;
+  /** Wording for customer text messages. */
+  sms?: boolean;
 }
 
 /** User-facing message (SPEC-FRONTEND section 10). */
@@ -70,7 +73,10 @@ export function errorMessage(e: unknown, ctx: MessageContext = {}): string {
     case 'VEHICLE_IN_SHOP': return ctx.kiosk
       ? 'This vehicle is already checked in. Please see the front desk.'
       : `This vehicle already has an open work order${detail ? ` #${detail}` : ''}. Add the new concern to that job instead.`;
-    case 'RATE_LIMITED': return 'Too many requests just now. Wait a minute and try again, or fill in the form below.';
+    case 'SMS_NOT_ALLOWED': return "This customer hasn't agreed to text messages. Turn them on in the customer record first.";
+    case 'SMS_UNAVAILABLE': return "The text couldn't be sent. Try again, or call the customer.";
+    case 'RATE_LIMITED': if (ctx.sms) return 'Too many texts for this job just now. Wait a while, or call the customer.';
+      return 'Too many requests just now. Wait a minute and try again, or fill in the form below.';
     case 'NOT_UNDERSTOOD': return "We couldn't find a vehicle problem in that. Add a little more detail, or fill in the form below.";
     case 'AI_UNAVAILABLE': return "We couldn't read that. Try again, or fill in the form below.";
     default: return 'Something went wrong. Try again.';

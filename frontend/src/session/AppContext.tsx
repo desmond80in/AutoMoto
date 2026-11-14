@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import type { IntakeApi } from '../api/intake';
+import type { SmsApi } from '../api/sms';
 import type { Api } from '../api/rpc';
 import type { AuthAdapter } from '../auth/types';
 import type { AppConfig } from '../config/loadConfig';
@@ -10,6 +11,7 @@ export interface AppServices {
   auth: AuthAdapter;
   api: Api;
   intake: IntakeApi;
+  sms: SmsApi;
   qc: QueryClient;
 }
 

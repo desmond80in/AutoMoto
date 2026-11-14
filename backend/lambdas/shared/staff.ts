@@ -16,7 +16,7 @@ function supabaseUrl(): string {
   return url.replace(/\/$/, '');
 }
 
-async function rest(path: string, init: RequestInit = {}): Promise<Response> {
+export async function rest(path: string, init: RequestInit = {}): Promise<Response> {
   const key = await getSecret('SUPABASE_SECRET_KEY');
   const res = await fetch(`${supabaseUrl()}/rest/v1/${path}`, {
     ...init,

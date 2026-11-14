@@ -9,10 +9,10 @@ import {
 } from './types';
 
 export interface VehicleInput { plate: string; year?: number | null; make: string; model: string; engine?: string; vin?: string }
-export interface CustomerInput { name: string; phone: string; email?: string }
+export interface CustomerInput { name: string; phone: string; email?: string; sms_opt_in?: boolean }
 export interface CheckInInput {
   customer_id: string; vehicle_id: string; reasons: string[]; odometer_km?: number | null; concerns: string[];
-  intake?: unknown; signed_name: string; signature_path: string;
+  intake?: unknown; signed_name: string; signature_path: string; sms_opt_in?: boolean;
 }
 export interface JobPatch {
   reasons?: string[]; odometer_km?: number | null; notes?: string; pickup_date?: string | null; received_by?: string | null;
@@ -92,6 +92,8 @@ export class Api {
   jobTransition = (id: string, to: JobStatus, version: number, reason?: string) =>
     this.call('job_transition', this.s({ p_id: id, p_to: to, p_expected_version: version, ...(reason ? { p_reason: reason } : {}) }), Job);
   getWorkOrder = (id: string) => this.call('get_work_order', { p_id: id }, Job);
+  setApprovalNeeded = (id: string, on: boolean, version: number, note?: string) =>
+    this.call('set_approval_needed', this.s({ p_id: id, p_on: on, p_expected_version: version, ...(note ? { p_note: note } : {}) }), Job);
   listJobs = (scope: JobScope) => this.call('list_jobs', { p_scope: scope }, z.array(JobSummary));
   findJobByCode = (code: string) => this.call('find_job_by_code', { p_code: code }, z.object({ id: z.string() }));
 
@@ -113,7 +115,7 @@ export class Api {
   // 8.5 admin
   listStaff = () => this.call('list_staff', {}, z.array(Staff));
   staffUpsert = (p: StaffInput) => this.call('staff_upsert', this.s({ p }), Staff);
-  updateShop = (p: { name?: string; hst_rate?: number; labour_rate?: number }) => this.call('update_shop', this.s({ p }), Shop);
+  updateShop = (p: { name?: string; hst_rate?: number; labour_rate?: number; phone?: string }) => this.call('update_shop', this.s({ p }), Shop);
 
   // views
   async displayBoard(): Promise<BoardRow[]> {

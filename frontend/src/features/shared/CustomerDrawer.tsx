@@ -29,6 +29,14 @@ export function CustomerDrawer({ id }: { id: string }) {
   if (!data) return null;
   const c = data.customer;
 
+  const setTexts = async (on: boolean) => {
+    const d = await run('sms', () => api.updateCustomer(id, { sms_opt_in: on }), on ? 'Texts turned on.' : 'Texts turned off.').catch(() => undefined);
+    if (d) {
+      qc.setQueryData(['customer', id], d);
+      void qc.invalidateQueries({ queryKey: ['job'] });
+    }
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!edit) return;
@@ -60,6 +68,31 @@ export function CustomerDrawer({ id }: { id: string }) {
           {data.visit_count} visit{data.visit_count === 1 ? '' : 's'}
         </span>
         <span className="pill t-muted">Lifetime {money(data.lifetime_total)}</span>
+      </div>
+      <div className="sec">
+        <h3>Text messages</h3>
+        <div className="row">
+          {c.sms_opt_in ? (
+            <span>
+              <span className="pill t-ok">Texts on</span>{' '}
+              <span className="muted small">
+                {c.sms_opt_in_source === 'kiosk' ? 'Agreed at the kiosk' : 'Turned on by staff'}
+                {c.sms_opt_in_at ? ` on ${fmtDate(c.sms_opt_in_at)}` : ''}.
+              </span>
+            </span>
+          ) : (
+            <span>
+              <span className="pill t-muted">Texts off</span>{' '}
+              <span className="muted small">
+                {c.sms_opt_in_at ? `Turned off on ${fmtDate(c.sms_opt_in_at)}.` : "The customer hasn't agreed to texts."}
+              </span>
+            </span>
+          )}
+          <button type="button" className="btn sm" disabled={!!busy} onClick={() => void setTexts(!c.sms_opt_in)}>
+            {c.sms_opt_in ? 'Turn texts off' : 'Turn texts on'}
+          </button>
+        </div>
+        {!c.sms_opt_in && <p className="hint">Only turn texts on when the customer asks for them.</p>}
       </div>
       <div className="sec">
         <h3>Vehicles</h3>

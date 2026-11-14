@@ -21,7 +21,14 @@ const num = z.number();
 const nstr = z.string().nullable().optional().transform((v) => v ?? null);
 const nnum = z.number().nullable().optional().transform((v) => v ?? null);
 
-export const Shop = z.object({ id: z.string(), name: z.string(), timezone: z.string(), hst_rate: num, labour_rate: num });
+export const Shop = z.object({
+  id: z.string(),
+  name: z.string(),
+  timezone: z.string(),
+  hst_rate: num,
+  labour_rate: num,
+  phone: nstr,
+});
 export type Shop = z.infer<typeof Shop>;
 
 export const Staff = z.object({
@@ -116,6 +123,26 @@ export const Intake = z.object({
 });
 export type Intake = z.infer<typeof Intake>;
 
+export const SMS_KINDS = ['ready', 'approval', 'waiting_parts', 'custom'] as const;
+export const SmsKind = z.enum(SMS_KINDS);
+export type SmsKind = z.infer<typeof SmsKind>;
+export const SmsStatus = z.enum(['queued', 'sent', 'simulated', 'failed']);
+export type SmsStatus = z.infer<typeof SmsStatus>;
+export const SmsMessage = z.object({
+  id: z.string(),
+  kind: SmsKind,
+  body: z.string(),
+  status: SmsStatus,
+  error: nstr,
+  created_at: ts,
+  sent_at: nstr,
+  sent_by_name: nstr,
+});
+export type SmsMessage = z.infer<typeof SmsMessage>;
+/** Response of POST /sms/send. */
+export const SmsSendResult = z.object({ id: z.string(), status: SmsStatus, error: nstr });
+export type SmsSendResult = z.infer<typeof SmsSendResult>;
+
 export const JobTotals = z.object({ parts: num, labour: num, tax: num, total: num, estimate: num });
 
 export const Job = z.object({
@@ -141,7 +168,15 @@ export const Job = z.object({
   picked_up_at: nstr,
   cancelled_at: nstr,
   cancel_reason: nstr.optional(),
-  customer: z.object({ id: z.string(), name: z.string(), phone: z.string(), email: nstr }),
+  approval_needed: z.boolean().optional().default(false),
+  approval_note: nstr,
+  customer: z.object({
+    id: z.string(),
+    name: z.string(),
+    phone: z.string(),
+    email: nstr,
+    sms_opt_in: z.boolean().optional().default(false),
+  }),
   vehicle: z.object({
     id: z.string(),
     plate: z.string(),
@@ -157,6 +192,7 @@ export const Job = z.object({
   items: z.array(z.object({ type: z.enum(['part', 'labour']), description: z.string(), qty: num, unit_price: num })),
   totals: JobTotals,
   events: z.array(z.object({ at: ts, message: z.string(), staff_name: nstr, kind: z.string().optional() })),
+  messages: z.array(SmsMessage).optional().default([]),
   owner_is_current: z.boolean(),
 });
 export type Job = z.infer<typeof Job>;
@@ -190,6 +226,8 @@ export const JobSummary = z.object({
   total: num,
   estimate: num,
   owner_unverified: z.boolean(),
+  approval_needed: z.boolean().optional().default(false),
+  ready_texted: z.boolean().optional().default(false),
   customer_was_owner_then: z.boolean().optional(),
   customer_is_current_owner: z.boolean().optional(),
 });
@@ -218,7 +256,16 @@ export type SearchAll = z.infer<typeof SearchAll>;
 const OwnerRole = z.enum(['owner', 'co_owner']);
 
 export const CustomerDetail = z.object({
-  customer: z.object({ id: z.string(), name: z.string(), phone: z.string(), email: nstr, created_at: ts }),
+  customer: z.object({
+    id: z.string(),
+    name: z.string(),
+    phone: z.string(),
+    email: nstr,
+    created_at: ts,
+    sms_opt_in: z.boolean().optional().default(false),
+    sms_opt_in_at: nstr,
+    sms_opt_in_source: z.enum(['kiosk', 'staff']).nullable().optional().transform((v) => v ?? null),
+  }),
   vehicles: z.array(
     z.object({
       id: z.string(),
