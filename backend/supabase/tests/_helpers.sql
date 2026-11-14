@@ -9,7 +9,7 @@ select plan(1);
 \endif
 
 create schema if not exists tests;
-grant usage on schema tests to authenticated;
+grant usage on schema tests to authenticated, anon;
 
 -- Act as a seeded staff member: role authenticated + JWT claims like the Cognito pre-token Lambda adds.
 create or replace function tests.as_staff(p_email text) returns uuid
@@ -54,7 +54,7 @@ exception when others then
   return sqlerrm;
 end $$;
 
-grant execute on all functions in schema tests to authenticated;
+grant execute on all functions in schema tests to authenticated, anon;
 
 \if :{?helpers_included}
 \else
