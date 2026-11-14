@@ -1,0 +1,286 @@
+{
+  "Acura": [
+    "ILX",
+    "Integra",
+    "MDX",
+    "RDX",
+    "TLX",
+    "ZDX"
+  ],
+  "Audi": [
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "e-tron",
+    "Q3",
+    "Q4 e-tron",
+    "Q5",
+    "Q7",
+    "Q8"
+  ],
+  "BMW": [
+    "2 Series",
+    "3 Series",
+    "4 Series",
+    "5 Series",
+    "i4",
+    "iX",
+    "X1",
+    "X3",
+    "X5",
+    "X7"
+  ],
+  "Buick": [
+    "Enclave",
+    "Encore",
+    "Encore GX",
+    "Envision"
+  ],
+  "Cadillac": [
+    "CT4",
+    "CT5",
+    "Escalade",
+    "LYRIQ",
+    "XT4",
+    "XT5",
+    "XT6"
+  ],
+  "Chevrolet": [
+    "Blazer",
+    "Bolt EUV",
+    "Bolt EV",
+    "Camaro",
+    "Colorado",
+    "Cruze",
+    "Equinox",
+    "Malibu",
+    "Silverado 1500",
+    "Silverado 2500HD",
+    "Spark",
+    "Suburban",
+    "Tahoe",
+    "Trailblazer",
+    "Traverse",
+    "Trax"
+  ],
+  "Chrysler": [
+    "300",
+    "Grand Caravan",
+    "Pacifica"
+  ],
+  "Dodge": [
+    "Challenger",
+    "Charger",
+    "Durango",
+    "Grand Caravan",
+    "Hornet",
+    "Journey"
+  ],
+  "Ford": [
+    "Bronco",
+    "Bronco Sport",
+    "Edge",
+    "Escape",
+    "Expedition",
+    "Explorer",
+    "F-150",
+    "F-250",
+    "F-350",
+    "Focus",
+    "Fusion",
+    "Maverick",
+    "Mustang",
+    "Mustang Mach-E",
+    "Ranger",
+    "Transit",
+    "Transit Connect"
+  ],
+  "GMC": [
+    "Acadia",
+    "Canyon",
+    "Sierra 1500",
+    "Sierra 2500HD",
+    "Terrain",
+    "Yukon"
+  ],
+  "Honda": [
+    "Accord",
+    "Civic",
+    "CR-V",
+    "Fit",
+    "HR-V",
+    "Odyssey",
+    "Passport",
+    "Pilot",
+    "Prologue",
+    "Ridgeline"
+  ],
+  "Hyundai": [
+    "Accent",
+    "Elantra",
+    "Ioniq 5",
+    "Ioniq 6",
+    "Kona",
+    "Palisade",
+    "Santa Cruz",
+    "Santa Fe",
+    "Sonata",
+    "Tucson",
+    "Venue"
+  ],
+  "Infiniti": [
+    "Q50",
+    "QX50",
+    "QX55",
+    "QX60",
+    "QX80"
+  ],
+  "Jeep": [
+    "Cherokee",
+    "Compass",
+    "Gladiator",
+    "Grand Cherokee",
+    "Renegade",
+    "Wagoneer",
+    "Wrangler"
+  ],
+  "Kia": [
+    "Carnival",
+    "EV6",
+    "EV9",
+    "Forte",
+    "K5",
+    "Niro",
+    "Rio",
+    "Seltos",
+    "Sorento",
+    "Soul",
+    "Sportage",
+    "Telluride"
+  ],
+  "Lexus": [
+    "ES",
+    "GX",
+    "IS",
+    "NX",
+    "RX",
+    "TX",
+    "UX"
+  ],
+  "Lincoln": [
+    "Aviator",
+    "Corsair",
+    "Nautilus",
+    "Navigator"
+  ],
+  "Mazda": [
+    "CX-3",
+    "CX-30",
+    "CX-5",
+    "CX-50",
+    "CX-70",
+    "CX-9",
+    "CX-90",
+    "Mazda3",
+    "Mazda6",
+    "MX-5"
+  ],
+  "Mercedes-Benz": [
+    "A-Class",
+    "C-Class",
+    "E-Class",
+    "GLA",
+    "GLB",
+    "GLC",
+    "GLE",
+    "GLS",
+    "Sprinter"
+  ],
+  "MINI": [
+    "Clubman",
+    "Cooper",
+    "Countryman"
+  ],
+  "Mitsubishi": [
+    "Eclipse Cross",
+    "Mirage",
+    "Outlander",
+    "Outlander PHEV",
+    "RVR"
+  ],
+  "Nissan": [
+    "Altima",
+    "Frontier",
+    "Kicks",
+    "Leaf",
+    "Murano",
+    "Pathfinder",
+    "Qashqai",
+    "Rogue",
+    "Sentra",
+    "Titan",
+    "Versa"
+  ],
+  "Porsche": [
+    "911",
+    "Cayenne",
+    "Macan",
+    "Taycan"
+  ],
+  "Ram": [
+    "1500",
+    "2500",
+    "3500",
+    "ProMaster"
+  ],
+  "Subaru": [
+    "Ascent",
+    "BRZ",
+    "Crosstrek",
+    "Forester",
+    "Impreza",
+    "Legacy",
+    "Outback",
+    "WRX"
+  ],
+  "Tesla": [
+    "Cybertruck",
+    "Model 3",
+    "Model S",
+    "Model X",
+    "Model Y"
+  ],
+  "Toyota": [
+    "4Runner",
+    "bZ4X",
+    "Camry",
+    "Corolla",
+    "Corolla Cross",
+    "Grand Highlander",
+    "Highlander",
+    "Prius",
+    "RAV4",
+    "Sequoia",
+    "Sienna",
+    "Tacoma",
+    "Tundra",
+    "Venza"
+  ],
+  "Volkswagen": [
+    "Atlas",
+    "Atlas Cross Sport",
+    "Golf",
+    "GTI",
+    "ID.4",
+    "Jetta",
+    "Taos",
+    "Tiguan"
+  ],
+  "Volvo": [
+    "S60",
+    "XC40",
+    "XC60",
+    "XC90"
+  ]
+}

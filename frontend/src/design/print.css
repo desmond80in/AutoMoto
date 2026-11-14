@@ -1,0 +1,17 @@
+/* Job tag printing: only the tag, sized for a 62 x 100 mm label, centred on Letter paper. */
+@media print {
+  @page { size: letter; margin: 0; }
+  body * { visibility: hidden !important; }
+  .print-tag, .print-tag * { visibility: visible !important; }
+  .print-tag {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 62mm; height: 100mm; box-sizing: border-box;
+    display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 2mm;
+    border: 0.3mm dashed #999 !important; border-radius: 3mm; padding: 3mm; background: #fff !important; color: #000 !important;
+  }
+  .print-tag .kt-qr { width: 40mm; height: 40mm; }
+  .print-tag .kt-info { justify-items: center; text-align: center; gap: 1mm; }
+  .print-tag .kt-no { font-size: 16pt; }
+  .print-tag .plate b { font-size: 12pt; }
+  .print-tag .small { font-size: 7pt; }
+}

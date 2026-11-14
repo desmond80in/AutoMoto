@@ -1,0 +1,17 @@
+{
+  "stage": "dev",
+  "region": "ca-central-1",
+  "supabaseUrl": "http://127.0.0.1:54321",
+  "supabasePublishableKey": "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH",
+  "cognito": {
+    "userPoolId": "ca-central-1_LOCAL",
+    "userPoolClientId": "local",
+    "domain": "localhost",
+    "redirectSignIn": ["http://localhost:5173/auth/callback"],
+    "redirectSignOut": ["http://localhost:5173/login"]
+  },
+  "apiUrl": "http://localhost:8788",
+  "authMode": "dev",
+  "devTokenUrl": "http://localhost:8787/token",
+  "devStaffEmails": ["owner@example.com", "ana.desk@example.com", "sam.tech@example.com"]
+}
