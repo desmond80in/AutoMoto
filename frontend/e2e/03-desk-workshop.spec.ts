@@ -128,7 +128,37 @@ test('desk tabs, find and drawers', async ({ page }) => {
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByRole('link', { name: 'Customers' }).click();
+  await expect(page.getByRole('link', { name: 'Customers' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('cell', { name: 'Priya Sharma' })).toBeVisible();
+  await expect(page.getByText(/^Showing 1–\d+ of \d+ customers$/)).toBeVisible();
+  const cq = page.getByLabel('Search customers by name, phone or plate');
+  await cq.fill('(647) 555-01');
+  await expect(page.getByRole('cell', { name: 'Daniel Okafor' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Priya Sharma' })).toHaveCount(0);
+  await cq.fill('cjwn');
+  await expect(page.getByText('Showing 1–1 of 1 customers')).toBeVisible();
+  await cq.fill('nobody-here');
+  await expect(page.getByText('No customers match “nobody-here”.')).toBeVisible();
+  await expectNoSeriousA11y(page, 'customers search');
+
   await page.getByRole('link', { name: 'Vehicles' }).click();
   await expect(page.getByRole('row', { name: /CAAB 214/ }).getByRole('cell', { name: / km$/ })).toBeVisible();
+  await page.getByLabel('Search vehicles by licence plate or VIN').fill('dkpl 87');
+  await expect(page.getByText('Showing 1–1 of 1 vehicles')).toBeVisible();
+  await expect(page.getByRole('row', { name: /DKPL 870/ })).toBeVisible();
+});
+
+test('customer leaves without repairs: front desk cancels a job at any stage', async ({ page }) => {
+  await signInAs(page, ANA, 'Front desk');
+  await page.goto('/desk/jobs?job=00000000-0000-0000-0000-0000000e0010');
+  const d = page.getByRole('dialog').first();
+  await d.getByRole('button', { name: 'Cancel job' }).click();
+  const c = page.getByRole('dialog', { name: /^Cancel job #/ });
+  await expect(c.getByLabel('Customer left without repairs')).toBeChecked();
+  await expectNoSeriousA11y(page, 'cancel dialog');
+  await c.getByRole('button', { name: 'Cancel job' }).click();
+  await expect(page.getByText(/Job #.* cancelled\./)).toBeVisible();
+  await expect(d.getByText('Reason: Customer left without repairs.')).toBeVisible();
+  await expect(d.getByText(/Cancelled by Ana Moreira\. Reason: Customer left without repairs/)).toBeVisible();
+  await expect(d.getByRole('button', { name: 'Cancel job' })).toHaveCount(0);
 });

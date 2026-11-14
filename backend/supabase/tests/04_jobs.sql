@@ -82,7 +82,8 @@ select is(public.job_transition(:'fd', '00000000-0000-0000-0000-0000000e0010', '
 select ok(public.get_work_order('00000000-0000-0000-0000-0000000e0010')->>'pickup_date' is not null, 'pickup_date defaulted to today');
 -- frontdesk cannot take a job
 select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0009', 'in_progress', 1)$$, :'fd')), 'ROLE_NOT_ALLOWED', 'frontdesk cannot take job');
-select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0009', 'cancelled', 1)$$, :'fd')), 'ROLE_NOT_ALLOWED', 'frontdesk cannot cancel');
+select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0009', 'cancelled', 1)$$, :'fd')), 'VALIDATION', 'cancel needs a reason');
+select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0009', 'cancelled', 1, '   ')$$, :'fd')), 'VALIDATION', 'blank reason rejected');
 select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0009', 'in_progress', 1)$$, :'ana_k')), 'ROLE_NOT_ALLOWED', 'kiosk session cannot transition');
 select tests.reset();
 
@@ -111,8 +112,22 @@ select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-000
 select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0006', 'ready', 1)$$, :'adm')), 'INVALID_TRANSITION', 'waiting_parts -> ready');
 -- admin can do workshop steps and cancel
 select is(public.job_transition(:'adm', '00000000-0000-0000-0000-0000000e0006', 'in_progress', 1)->>'status', 'in_progress', 'admin resumes');
-select is(public.job_transition(:'adm', '00000000-0000-0000-0000-0000000e0009', 'cancelled', 1)->>'status', 'cancelled', 'admin cancels');
+select is(public.job_transition(:'adm', '00000000-0000-0000-0000-0000000e0009', 'cancelled', 1, 'Customer declined the estimate')->>'status', 'cancelled', 'admin cancels');
 select ok((select cancelled_at from public.work_orders where id = '00000000-0000-0000-0000-0000000e0009') is not null, 'cancelled_at stamped');
+select tests.reset();
+
+-- customer leaves mid-repair: the front desk cancels an in-progress job (e0006, version 2 after the admin resumed it)
+select tests.as_staff('sam.tech@example.com');
+select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0006', 'cancelled', 2, 'Left')$$, :'ws')), 'ROLE_NOT_ALLOWED', 'workshop cannot cancel');
+select tests.as_staff('ana.desk@example.com');
+select is(public.job_transition(:'fd', '00000000-0000-0000-0000-0000000e0006', 'cancelled', 2, '  Customer left   without repairs ')->>'cancel_reason',
+          'Customer left without repairs', 'frontdesk cancels in-progress job; reason tidied and returned');
+select is(pg_temp.status('00000000-0000-0000-0000-0000000e0006'), 'cancelled', 'job is cancelled');
+select is(public.get_work_order('00000000-0000-0000-0000-0000000e0006')->'events'->0->>'message',
+          'Cancelled by Ana Moreira. Reason: Customer left without repairs', 'cancel event names who and why');
+select is((select version from public.work_orders where id = '00000000-0000-0000-0000-0000000e0006'), 3, 'cancel bumps version');
+select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0006', 'cancelled', 3, 'again')$$, :'fd')), 'INVALID_TRANSITION', 'cannot cancel twice');
+select is(tests.err(format($$select public.job_transition(%L, '00000000-0000-0000-0000-0000000e0008', 'cancelled', 1, repeat('x', 201))$$, :'fd')), 'VALIDATION', 'reason at most 200 characters');
 select tests.reset();
 
 -- ---------------------------------------------------------------- save_work_order

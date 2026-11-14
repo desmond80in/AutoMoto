@@ -1,19 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PlateChip } from '../../components/PlateChip';
 import { StatusPill } from '../../components/StatusPill';
 import { fmtDate, fmtPhone, vehicleName } from '../../lib/format';
+import { useDebounced } from '../../lib/useDebounced';
 import { useApp } from '../../session/AppContext';
 import { useDrawerNav } from '../shared/useDrawerNav';
-
-function useDebounced<T>(v: T, ms: number): T {
-  const [d, setD] = useState(v);
-  useEffect(() => {
-    const t = setTimeout(() => setD(v), ms);
-    return () => clearTimeout(t);
-  }, [v, ms]);
-  return d;
-}
 
 export function FindTab() {
   const { api } = useApp();

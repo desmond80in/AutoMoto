@@ -138,6 +138,7 @@ export const Job = z.object({
   completed_at: nstr,
   picked_up_at: nstr,
   cancelled_at: nstr,
+  cancel_reason: nstr.optional(),
   customer: z.object({ id: z.string(), name: z.string(), phone: z.string(), email: nstr }),
   vehicle: z.object({
     id: z.string(),
@@ -314,6 +315,10 @@ export const VehicleRow = z.object({
   last_odometer_km: nnum,
 });
 export type VehicleRow = z.infer<typeof VehicleRow>;
+
+/** One page of a searchable list: `total` counts every match, `items` holds this page. */
+export const page = <T extends z.ZodTypeAny>(item: T) => z.object({ total: num, items: z.array(item) });
+export const PAGE_SIZE = 25;
 
 export const BoardRow = z.object({
   id: z.string(),

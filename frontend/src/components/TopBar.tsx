@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ConnState } from '../api/realtime';
 import { useSession } from '../session/SessionProvider';
 import { roleLabel } from '../session/roles';
@@ -14,9 +14,23 @@ export function TopBar({ conn }: { conn: ConnState | null }) {
   const ready = state.status === 'ready' ? state : null;
   const shopName = state.status === 'ready' || state.status === 'pickRole' || state.status === 'pinSetup' ? state.me.shop.name : 'Workshop';
   const locked = ready && (ready.session.role === 'kiosk' || ready.session.role === 'display');
+  const ref = useRef<HTMLElement>(null);
+
+  // Publish the bar's height so the section tabs can stick just below it (the bar wraps on narrow screens).
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = document.documentElement.style;
+    const ro = new ResizeObserver(() => root.setProperty('--topbar-h', `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.removeProperty('--topbar-h');
+    };
+  }, []);
 
   return (
-    <header className="topbar">
+    <header className="topbar" ref={ref}>
       <div className="brand">
         <div className="logo" aria-hidden="true">
           {shopName

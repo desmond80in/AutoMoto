@@ -46,9 +46,14 @@ test('admin shop settings, job cancel with confirm', async ({ page }) => {
   await expect(page.getByText('Shop settings saved.')).toBeVisible();
 
   await page.goto('/admin/jobs?job=00000000-0000-0000-0000-0000000e0009');
-  const d = page.getByRole('dialog');
+  const d = page.getByRole('dialog').first();
   await d.getByRole('button', { name: 'Cancel job' }).click();
-  await d.getByRole('button', { name: 'Yes, cancel job' }).click();
+  const c = page.getByRole('dialog', { name: /^Cancel job #/ });
+  await c.getByLabel('Other reason').check();
+  await expect(c.getByRole('button', { name: 'Cancel job' })).toBeDisabled();
+  await c.getByLabel('Describe the reason').fill('Customer had to leave for the airport');
+  await c.getByRole('button', { name: 'Cancel job' }).click();
   await expect(page.getByText(/Job #.* cancelled\./)).toBeVisible();
   await expect(d.getByText('Cancelled', { exact: true })).toBeVisible();
+  await expect(d.getByText('Reason: Customer had to leave for the airport.')).toBeVisible();
 });

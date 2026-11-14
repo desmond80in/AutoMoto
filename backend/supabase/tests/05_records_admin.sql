@@ -24,10 +24,29 @@ select ok(jsonb_array_length(public.search_all('grinding')->'jobs') >= 1, 'searc
 select is(jsonb_array_length(public.search_all('x')->'customers'), 0, 'short query returns nothing');
 select is(public.search_all('dkpl870')->'vehicles'->0->'current_owners', '["Daniel Okafor", "Mei Lin Chen"]'::jsonb, 'vehicle current owners');
 
-select is(jsonb_array_length(public.list_customers()), 4, 'list_customers');
-select is((select x->'plates' from jsonb_array_elements(public.list_customers()) x where x->>'name' = 'Daniel Okafor'), '["DKPL870", "CJWN309"]'::jsonb, 'customer plates');
-select is(jsonb_array_length(public.list_vehicles()), 4, 'list_vehicles');
-select is((select (x->>'owners_on_record')::int from jsonb_array_elements(public.list_vehicles()) x where x->>'plate' = 'BXRT552'), 2, 'owners on record');
+select is(jsonb_array_length(public.list_customers()->'items'), 4, 'list_customers');
+select is((public.list_customers()->>'total')::int, 4, 'list_customers total');
+select is((select x->'plates' from jsonb_array_elements(public.list_customers()->'items') x where x->>'name' = 'Daniel Okafor'), '["DKPL870", "CJWN309"]'::jsonb, 'customer plates');
+select is(jsonb_array_length(public.list_vehicles()->'items'), 4, 'list_vehicles');
+select is((select (x->>'owners_on_record')::int from jsonb_array_elements(public.list_vehicles()->'items') x where x->>'plate' = 'BXRT552'), 2, 'owners on record');
+
+-- customer search: name, phone digits, current plate; pages
+select is(public.list_customers('PRIYA')->'items'->0->>'name', 'Priya Sharma', 'customers: name, any case');
+select is(public.list_customers('(647) 555-0198')->'items'->0->>'name', 'Daniel Okafor', 'customers: formatted phone');
+select is((public.list_customers('0198')->>'total')::int, 1, 'customers: partial phone');
+select is(public.list_customers('cjwn 309')->'items'->0->>'name', 'Daniel Okafor', 'customers: current plate');
+select is((public.list_customers('BXRT552')->>'total')::int, 1, 'customers: plate matches its current owner only (Marco, not Priya)');
+select is(public.list_customers('BXRT552')->'items'->0->>'name', 'Marco Rossi', 'customers: plate current owner');
+select is((public.list_customers('zzz-nobody')->>'total')::int, 0, 'customers: no match');
+select is(public.list_customers(null, 2, 0)->'items', (select jsonb_agg(x) from (select jsonb_array_elements(public.list_customers()->'items') x limit 2) t), 'customers: first page of 2');
+select is(public.list_customers(null, 2, 2)->'items'->0->>'name', 'Mei Lin Chen', 'customers: second page, name order');
+select is((public.list_customers(null, 2, 2)->>'total')::int, 4, 'customers: total ignores paging');
+select is(jsonb_array_length(public.list_customers(null, 1000, 0)->'items'), 4, 'customers: limit clamped');
+-- vehicle search: plate or VIN; pages
+select is(public.list_vehicles('dkpl 870')->'items'->0->>'plate', 'DKPL870', 'vehicles: plate with space, lower case');
+select is((public.list_vehicles('C')->>'total')::int, 2, 'vehicles: partial plate (CAAB214, CJWN309; VINs need 6+ characters)');
+select is(public.list_vehicles('KH601234')->'items'->0->>'plate', 'CAAB214', 'vehicles: VIN');
+select is(public.list_vehicles(null, 1, 3)->'items'->0->>'plate', 'DKPL870', 'vehicles: last page, plate order');
 
 select is(jsonb_array_length(public.get_customer('00000000-0000-0000-0000-00000000c001')->'vehicles'), 1, 'get_customer: current vehicles');
 select is(public.get_customer('00000000-0000-0000-0000-00000000c001')->'previous_vehicles'->0->>'plate', 'BXRT552', 'get_customer: previous vehicles');

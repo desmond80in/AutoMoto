@@ -16,6 +16,7 @@ import { computeTotals } from '../../lib/totals';
 import { useApp } from '../../session/AppContext';
 import { useReady } from '../../session/SessionProvider';
 import { REASON_LABELS } from '../kiosk/VisitStep';
+import { CancelJobDialog } from './CancelJobDialog';
 import { useAction } from './useAction';
 import { useDrawerNav } from './useDrawerNav';
 
@@ -136,7 +137,7 @@ export function JobDrawer({ id }: { id: string }) {
     }
   };
 
-  const go = async (to: JobStatus) => {
+  const go = async (to: JobStatus, reason?: string) => {
     try {
       // Unsaved edits go in first so the transition doesn't discard them.
       let version = base.version;
@@ -148,7 +149,7 @@ export function JobDrawer({ id }: { id: string }) {
         }
         version = (await api.saveWorkOrder(job.id, version, patch)).version;
       }
-      const j = await run(to, () => api.jobTransition(job.id, to, version), TOASTS[to]?.(job.order_no));
+      const j = await run(to, () => api.jobTransition(job.id, to, version, reason), TOASTS[to]?.(job.order_no));
       if (j) {
         applyJob(j);
         if (to === 'accepted') nav.open('tag', j.id);
@@ -207,21 +208,18 @@ export function JobDrawer({ id }: { id: string }) {
           Mark picked up
         </button>
       )}
-      {role === 'admin' && open && !confirmCancel && (
+      {desk && open && (
         <button type="button" className="btn danger" onClick={() => setConfirmCancel(true)}>
           Cancel job
         </button>
       )}
-      {role === 'admin' && confirmCancel && (
-        <>
-          <span className="warn-note">Cancel job #{job.order_no}?</span>
-          <button type="button" className="btn danger" disabled={!!busy} onClick={() => go('cancelled').then(() => setConfirmCancel(false))}>
-            Yes, cancel job
-          </button>
-          <button type="button" className="btn ghost" onClick={() => setConfirmCancel(false)}>
-            Keep job
-          </button>
-        </>
+      {desk && open && confirmCancel && (
+        <CancelJobDialog
+          orderNo={job.order_no}
+          busy={!!busy}
+          onClose={() => setConfirmCancel(false)}
+          onConfirm={(reason) => void go('cancelled', reason).then(() => setConfirmCancel(false))}
+        />
       )}
       <button type="button" className={`btn${ws || st === 'checked_in' ? '' : ' primary'}`} disabled={!!busy || !dirty} onClick={save}>
         Save changes
@@ -274,6 +272,12 @@ export function JobDrawer({ id }: { id: string }) {
         </div>
         <StatusPill status={st} />
       </div>
+      {st === 'cancelled' && (
+        <div className="panel cancelled-note">
+          <b>Cancelled{job.cancelled_at ? ` ${fmtDateTime(job.cancelled_at)}` : ''}.</b>{' '}
+          {job.cancel_reason ? `Reason: ${job.cancel_reason}.` : ''}
+        </div>
+      )}
 
       <div className="ticket">
         <div className="cell">

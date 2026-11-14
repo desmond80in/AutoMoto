@@ -33,7 +33,7 @@ const FIELD_LABELS: Record<string, string> = {
   name: 'name', phone: 'phone number', email: 'email', plate: 'licence plate', year: 'year', make: 'make',
   model: 'model', vin: 'VIN', odometer_km: 'odometer', concerns: 'concerns', signed_name: 'printed name',
   signature_path: 'signature', customer_id: 'customer', reasons: 'reason for visit', items: 'repair details',
-  pickup_date: 'pick-up date', received_by: 'order received by', pin: 'PIN', roles: 'roles',
+  pickup_date: 'pick-up date', received_by: 'order received by', pin: 'PIN', roles: 'roles', reason: 'reason',
   quick_switch: 'switch without signing out', hst_rate: 'HST rate', labour_rate: 'labour rate', mode: 'connection',
 };
 

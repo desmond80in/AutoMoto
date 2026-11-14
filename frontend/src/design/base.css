@@ -1,6 +1,7 @@
 /* Base and component styles, ported from the prototype. Class names are kept so screens match it. */
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
+html{scrollbar-gutter:stable}
 body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
 body.locked{overflow:hidden}
 h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
@@ -130,7 +131,8 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
 
 /* Workshop */
 .ws{display:grid;gap:20px}
-.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);overflow-x:auto}
+/* Section tabs stay visible below the top bar while the page scrolls */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);overflow-x:auto;position:sticky;top:var(--topbar-h,0px);z-index:4;background:var(--paper);padding-top:6px;margin-top:-6px}
 .tabs button{border:0;background:none;padding:10px 14px;font-weight:600;font-size:16px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
 .tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
 .tabs .count{font-family:var(--mono);font-size:13px;margin-left:6px;color:var(--muted)}
@@ -153,6 +155,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
 .tone-info{--tone:var(--info)} .tone-accent{--tone:var(--accent)} .tone-warn{--tone:var(--warn)} .tone-ok{--tone:var(--ok)} .tone-muted{--tone:var(--line-strong)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.list-search{max-width:560px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.cancelled-note{border-color:var(--line-strong);margin-top:10px}
+fieldset.radio-list{border:0;padding:0;margin:0;min-width:0}
+fieldset.radio-list legend{padding:0;margin-bottom:8px}
 table{border-collapse:collapse;width:100%;font-size:15px}
 th{font:600 13px var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;background:var(--label-bg);padding:9px 12px;white-space:nowrap}
 td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
@@ -330,7 +337,13 @@ a{color:var(--accent)}
   .scan form input{width:100%!important}
 }
 .tabs .tab-link{padding:10px 14px;font-weight:600;font-size:16px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
-.tabs .tab-link[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+.tabs .tab-link{border-radius:9px 9px 0 0}
+.tabs .tab-link:hover{color:var(--ink)}
+.tabs .tab-link[aria-current="page"]{color:var(--accent);background:var(--accent-soft);border-color:var(--accent);font-weight:700}
+.tabs .tab-link[aria-current="page"] .count{color:var(--accent)}
+.tabs .tab-link[aria-current="page"] .count.hot{color:#fff}
 .plate.sm{padding:1px 6px 2px;border-width:1.5px}
 .plate.sm small{font-size:6px}
 .plate.sm b{font-size:13px}
+/* Phones: the top bar wraps to several lines, so let it scroll away and pin only the section tabs */
+@media (max-width:640px){.topbar{position:static}.tabs{top:0}}

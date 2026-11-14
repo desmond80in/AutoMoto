@@ -132,7 +132,7 @@ cross join lateral (values
   (case when w.status = 'waiting_parts' then w.started_at + interval '2 hours' end, '00000000-0000-0000-0000-00000000b003'::uuid, 'status_change', 'in_progress', 'waiting_parts', 'Waiting on parts. Set by Sam Okonkwo'),
   (w.completed_at, '00000000-0000-0000-0000-00000000b003'::uuid, 'status_change', 'in_progress', 'ready', 'Work completed by Sam Okonkwo. Ready for pickup'),
   (w.picked_up_at, '00000000-0000-0000-0000-00000000b002'::uuid, 'status_change', 'ready', 'picked_up', 'Picked up. Vehicle released by Ana Moreira'),
-  (w.cancelled_at, '00000000-0000-0000-0000-00000000b001'::uuid, 'status_change', 'checked_in', 'cancelled', 'Cancelled by Owner')
+  (w.cancelled_at, '00000000-0000-0000-0000-00000000b001'::uuid, 'status_change', 'checked_in', 'cancelled', 'Cancelled by Owner. Reason: Customer declined the estimate')
 ) as e(at, staff_id, kind, from_status, to_status, message)
 where e.at is not null;
 
@@ -140,5 +140,15 @@ where e.at is not null;
 insert into public.order_counters (shop_id, day, last)
 select shop_id, to_date(left(order_no, 6), 'YYMMDD'), max(split_part(order_no, '-', 2)::int)
 from public.work_orders group by shop_id, left(order_no, 6);
+
+update public.work_orders set cancel_reason = 'Customer declined the estimate' where status = 'cancelled';
+
+-- Today's sample times are fixed clock times; cap them at now so nothing is in the future when the seed runs in the
+-- morning. Events capped to the same instant keep their order by id (inserted in lifecycle order).
+update public.work_orders set
+  signed_at = least(signed_at, now()), accepted_at = least(accepted_at, now()), started_at = least(started_at, now()),
+  completed_at = least(completed_at, now()), picked_up_at = least(picked_up_at, now()),
+  cancelled_at = least(cancelled_at, now()), created_at = least(created_at, now()), updated_at = least(updated_at, now());
+update public.work_order_events set at = least(at, now());
 
 drop table seed_wo;

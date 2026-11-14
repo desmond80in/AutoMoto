@@ -136,7 +136,7 @@ Intake API: `400 VALIDATION`, `401` (no/invalid token, from API Gateway), `403 R
 | `kiosk_check_in(p_session, p)` | kiosk | create the work order with signature |
 | `create_work_order(p_session, p)` | frontdesk, admin | staff-created work order |
 | `save_work_order(p_session, p_id, p_expected_version, p_patch)` | frontdesk, workshop, admin | edit details, concerns, items |
-| `job_transition(p_session, p_id, p_to, p_expected_version)` | per transition | lifecycle step, audited |
+| `job_transition(p_session, p_id, p_to, p_expected_version, p_reason?)` | per transition | lifecycle step, audited; `cancelled` from any open stage by frontdesk/admin, reason required |
 | `get_work_order(p_id)` | frontdesk, workshop, admin | full job |
 | `list_jobs(p_scope)` | frontdesk, workshop, admin | `active`, `arrivals`, `queue`, `mine`, `recent_picked_up` |
 | `find_job_by_code(p_code)` | frontdesk, workshop, admin | QR `WO:<uuid>`, order no, or last ≥3 digits |
@@ -144,7 +144,7 @@ Intake API: `400 VALIDATION`, `401` (no/invalid token, from API Gateway), `403 R
 | `get_customer(p_id)` / `get_vehicle(p_id)` | frontdesk, admin | drawers with history |
 | `update_customer` / `update_vehicle` | frontdesk, admin | edit records |
 | `owner_add` / `owner_end` / `owner_verify` | frontdesk, admin | ownership management |
-| `list_customers()` / `list_vehicles()` | frontdesk, admin | tables |
+| `list_customers(p_query?, p_limit?, p_offset?)` / `list_vehicles(…)` | frontdesk, admin | `{ total, items }`; customers by name, phone or current plate, vehicles by plate or VIN; 25 per page (max 100) |
 | `list_staff()` | admin | staff (never PIN hashes) |
 | `staff_upsert(p_session, p)` | admin | add/edit staff, roles, quick switch, PIN |
 | `update_shop(p_session, p)` | admin | name, HST rate, labour rate |

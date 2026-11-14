@@ -5,7 +5,7 @@ import { AppError, toAppError } from './errors';
 import {
   type AppRole, BoardRow, CustomerDetail, CustomerRow, Job, type JobScope, type JobStatus, JobSummary, KioskAddVehicle,
   KioskCheckIn, KioskCustomerMatch, KioskLinkOwner, KioskLookup, KioskRegister, Me, SearchAll, Session, Shop, Staff,
-  VehicleDetail, VehicleRow, VerifyPin,
+  VehicleDetail, VehicleRow, VerifyPin, page, PAGE_SIZE,
 } from './types';
 
 export interface VehicleInput { plate: string; year?: number | null; make: string; model: string; engine?: string; vin?: string }
@@ -89,8 +89,8 @@ export class Api {
     this.call('create_work_order', this.s({ p }), Job);
   saveWorkOrder = (id: string, version: number, patch: JobPatch) =>
     this.call('save_work_order', this.s({ p_id: id, p_expected_version: version, p_patch: patch }), Job);
-  jobTransition = (id: string, to: JobStatus, version: number) =>
-    this.call('job_transition', this.s({ p_id: id, p_to: to, p_expected_version: version }), Job);
+  jobTransition = (id: string, to: JobStatus, version: number, reason?: string) =>
+    this.call('job_transition', this.s({ p_id: id, p_to: to, p_expected_version: version, ...(reason ? { p_reason: reason } : {}) }), Job);
   getWorkOrder = (id: string) => this.call('get_work_order', { p_id: id }, Job);
   listJobs = (scope: JobScope) => this.call('list_jobs', { p_scope: scope }, z.array(JobSummary));
   findJobByCode = (code: string) => this.call('find_job_by_code', { p_code: code }, z.object({ id: z.string() }));
@@ -105,8 +105,10 @@ export class Api {
     this.call('owner_add', this.s({ p_vehicle_id: vehicleId, p_phone: phone, p_name: name, p_mode: mode }), VehicleDetail);
   ownerEnd = (ownerId: string) => this.call('owner_end', this.s({ p_owner_id: ownerId }), VehicleDetail);
   ownerVerify = (ownerId: string) => this.call('owner_verify', this.s({ p_owner_id: ownerId }), VehicleDetail);
-  listCustomers = () => this.call('list_customers', {}, z.array(CustomerRow));
-  listVehicles = () => this.call('list_vehicles', {}, z.array(VehicleRow));
+  listCustomers = (query: string, pageNo: number) =>
+    this.call('list_customers', { p_query: query, p_limit: PAGE_SIZE, p_offset: pageNo * PAGE_SIZE }, page(CustomerRow));
+  listVehicles = (query: string, pageNo: number) =>
+    this.call('list_vehicles', { p_query: query, p_limit: PAGE_SIZE, p_offset: pageNo * PAGE_SIZE }, page(VehicleRow));
 
   // 8.5 admin
   listStaff = () => this.call('list_staff', {}, z.array(Staff));
