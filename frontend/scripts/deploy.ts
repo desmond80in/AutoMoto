@@ -30,7 +30,8 @@ const files = (function walk(dir: string): string[] {
   .map((f) => relative(dist, f).split('\\').join('/'))
   .filter((k) => !SKIP.has(k));
 
-const s3 = new S3Client({});
+// The web bucket is in ca-central-1 whatever the CLI's default region is.
+const s3 = new S3Client({ region: process.env.AWS_REGION ?? 'ca-central-1' });
 const cacheFor = (key: string) => (key.startsWith('assets/') ? 'public,max-age=31536000,immutable' : 'no-cache');
 // index.html last, so new assets exist before the page that references them.
 for (const key of [...files.filter((k) => k !== 'index.html'), 'index.html']) {
@@ -64,7 +65,7 @@ await s3.send(
 );
 console.log('uploaded config.json');
 
-const cf = new CloudFrontClient({});
+const cf = new CloudFrontClient({ region: 'us-east-1' });
 await cf.send(
   new CreateInvalidationCommand({
     DistributionId: distributionId,
