@@ -1,0 +1,10 @@
+# Copy to backend.tf to keep Terraform state in S3 (ca-central-1), then: terraform init -migrate-state
+terraform {
+  backend "s3" {
+    bucket       = "<your-state-bucket>"
+    key          = "workshop/pov/terraform.tfstate"
+    region       = "ca-central-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}
