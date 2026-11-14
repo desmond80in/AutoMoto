@@ -4,6 +4,7 @@ import { useApp } from '../session/AppContext';
 import { useReady } from '../session/SessionProvider';
 import { roleLabel } from '../session/roles';
 import { Dialog } from './Dialog';
+import { PinInput } from './PinInput';
 
 /** Kiosk/display lock: a staff PIN unlocks the switch-role dialog. */
 export function PinDialog({ onClose, onUnlocked }: { onClose: () => void; onUnlocked: () => void }) {
@@ -35,15 +36,7 @@ export function PinDialog({ onClose, onUnlocked }: { onClose: () => void; onUnlo
         <label className="sr" htmlFor="gate-pin">
           PIN
         </label>
-        <input
-          id="gate-pin"
-          type="password"
-          inputMode="numeric"
-          maxLength={6}
-          value={pin}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-          autoComplete="off"
-        />
+        <PinInput id="gate-pin" value={pin} onChange={setPin} />
         {err && (
           <p className="err" role="alert">
             {err}

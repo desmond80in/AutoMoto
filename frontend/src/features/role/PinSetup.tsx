@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { errorMessage } from '../../api/errors';
 import { useSession } from '../../session/SessionProvider';
 import { homeFor, roleLabel } from '../../session/roles';
+import { PinInput } from '../../components/PinInput';
 
 export function PinSetup() {
   const { state, completePinSetup } = useSession();
@@ -49,13 +50,13 @@ export function PinSetup() {
             <label className="lbl" htmlFor="pin1">
               PIN
             </label>
-            <input id="pin1" type="password" inputMode="numeric" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} autoComplete="new-password" />
+            <PinInput id="pin1" value={pin} onChange={setPin} autoComplete="new-password" />
           </div>
           <div className="field">
             <label className="lbl" htmlFor="pin2">
               Repeat the PIN
             </label>
-            <input id="pin2" type="password" inputMode="numeric" maxLength={6} value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, ''))} autoComplete="new-password" />
+            <PinInput id="pin2" value={pin2} onChange={setPin2} autoComplete="new-password" />
           </div>
         </div>
         {err && (

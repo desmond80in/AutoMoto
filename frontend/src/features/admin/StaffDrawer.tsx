@@ -9,6 +9,7 @@ import { useReady, useSession } from '../../session/SessionProvider';
 import { ROLE_INFO, ROLE_ORDER, roleLabel } from '../../session/roles';
 import { useAction } from '../shared/useAction';
 import { useDrawerNav } from '../shared/useDrawerNav';
+import { PinInput } from '../../components/PinInput';
 
 interface Draft {
   name: string;
@@ -101,15 +102,7 @@ export function StaffDrawer({ id }: { id: string }) {
             <label className="lbl" htmlFor="st-pin">
               {isNew ? 'PIN (4 to 6 digits)' : 'New PIN (leave blank to keep)'}
             </label>
-            <input
-              id="st-pin"
-              type="password"
-              inputMode="numeric"
-              maxLength={6}
-              autoComplete="new-password"
-              value={draft.pin}
-              onChange={(e) => setDraft({ ...draft, pin: e.target.value.replace(/\D/g, '') })}
-            />
+            <PinInput id="st-pin" value={draft.pin} onChange={(pin) => setDraft({ ...draft, pin })} autoComplete="new-password" />
           </div>
           <div className="field">
             <span className="lbl">Status</span>

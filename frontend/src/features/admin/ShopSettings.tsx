@@ -3,6 +3,7 @@ import { useApp } from '../../session/AppContext';
 import { useReady, useSession } from '../../session/SessionProvider';
 import { parseNumber } from '../../lib/normalize';
 import { useAction } from '../shared/useAction';
+import { PinInput } from '../../components/PinInput';
 
 export function ShopSettings() {
   const { api } = useApp();
@@ -76,13 +77,13 @@ export function ShopSettings() {
             <label className="lbl" htmlFor="np1">
               New PIN
             </label>
-            <input id="np1" type="password" inputMode="numeric" maxLength={6} autoComplete="new-password" value={pin.a} onChange={(e) => setPin({ ...pin, a: e.target.value.replace(/\D/g, '') })} />
+            <PinInput id="np1" value={pin.a} onChange={(a) => setPin({ ...pin, a })} autoComplete="new-password" />
           </div>
           <div className="field">
             <label className="lbl" htmlFor="np2">
               Repeat the PIN
             </label>
-            <input id="np2" type="password" inputMode="numeric" maxLength={6} autoComplete="new-password" value={pin.b} onChange={(e) => setPin({ ...pin, b: e.target.value.replace(/\D/g, '') })} />
+            <PinInput id="np2" value={pin.b} onChange={(b) => setPin({ ...pin, b })} autoComplete="new-password" />
           </div>
         </div>
         {pinErr && (
