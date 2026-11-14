@@ -21,3 +21,5 @@ One line per decision not fixed by the specs.
 - 2026-11-13 Kiosk visit summary shows first name + "Phone ending NNNN" (the kiosk never receives full names or phones).
 - 2026-11-13 "+ Start work order" in the vehicle drawer asks for the first concern (create_work_order requires one).
 - 2026-11-13 e2e global setup resets the DB and waits until local Realtime delivers a change again (after db reset the local replication slot is rebuilt and early changes are dropped).
+- 2026-11-14 Secrets are SSM Parameter Store SecureString parameters (standard tier, aws/ssm key) instead of Secrets Manager, to avoid US$0.40/secret/month; no rotation is needed (keys are rotated by hand). Terraform creates them with the placeholder "unset" and ignores later value changes; Lambdas get the parameter name in `<NAME>_PARAM` and treat the placeholder as missing.
+- 2026-11-14 Supabase Free plan is acceptable for the demo (pauses after 7 idle days, no backups); Pro is required before real customer data.

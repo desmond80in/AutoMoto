@@ -47,9 +47,9 @@ resource "aws_cognito_user_pool_domain" "web" {
 }
 
 # Google identity provider: enabled once google_client_id is set and the client secret is stored (HUMAN H3).
-data "aws_secretsmanager_secret_version" "google" {
-  count     = local.google ? 1 : 0
-  secret_id = aws_secretsmanager_secret.google_client_secret.id
+data "aws_ssm_parameter" "google" {
+  count = local.google ? 1 : 0
+  name  = aws_ssm_parameter.secret["google_client_secret"].name
 }
 
 resource "aws_cognito_identity_provider" "google" {
@@ -59,7 +59,7 @@ resource "aws_cognito_identity_provider" "google" {
   provider_type = "Google"
   provider_details = {
     client_id        = var.google_client_id
-    client_secret    = data.aws_secretsmanager_secret_version.google[0].secret_string
+    client_secret    = data.aws_ssm_parameter.google[0].value
     authorize_scopes = "openid email profile"
   }
   attribute_mapping = {
@@ -67,6 +67,12 @@ resource "aws_cognito_identity_provider" "google" {
     name           = "name"
     email_verified = "email_verified"
     username       = "sub"
+  }
+  lifecycle {
+    precondition {
+      condition     = data.aws_ssm_parameter.google[0].value != local.secret_placeholder
+      error_message = "Store the Google client secret first: cd backend && npx tsx scripts/put-secrets.ts google-client-secret"
+    }
   }
 }
 

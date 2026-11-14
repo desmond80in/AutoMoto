@@ -1,9 +1,9 @@
 # Lambdas are bundled by the backend (npm run build:lambdas) into <lambda_dist_dir>/<name>/index.mjs.
 locals {
   lambdas = {
-    cognito-pre-signup = { memory = 256, timeout = 5, secrets = [aws_secretsmanager_secret.supabase_secret_key.arn] }
-    cognito-pre-token  = { memory = 256, timeout = 5, secrets = [aws_secretsmanager_secret.supabase_secret_key.arn] }
-    intake-api         = { memory = 512, timeout = 20, secrets = [aws_secretsmanager_secret.anthropic_api_key.arn] }
+    cognito-pre-signup = { memory = 256, timeout = 5, secrets = [aws_ssm_parameter.secret["supabase_secret_key"].arn] }
+    cognito-pre-token  = { memory = 256, timeout = 5, secrets = [aws_ssm_parameter.secret["supabase_secret_key"].arn] }
+    intake-api         = { memory = 512, timeout = 20, secrets = [aws_ssm_parameter.secret["anthropic_api_key"].arn] }
   }
 }
 
@@ -40,8 +40,18 @@ data "aws_iam_policy_document" "lambda" {
   for_each = local.lambdas
   statement {
     sid       = "ReadOwnSecrets"
-    actions   = ["secretsmanager:GetSecretValue"]
+    actions   = ["ssm:GetParameter"]
     resources = each.value.secrets
+  }
+  statement {
+    sid       = "DecryptViaSsm"
+    actions   = ["kms:Decrypt"]
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["ssm.${var.region}.amazonaws.com"]
+    }
   }
   dynamic "statement" {
     for_each = each.key == "intake-api" ? [1] : []
@@ -79,12 +89,12 @@ resource "aws_lambda_function" "fn" {
   timeout          = each.value.timeout
   environment {
     variables = each.key == "intake-api" ? {
-      ANTHROPIC_API_KEY_ARN = aws_secretsmanager_secret.anthropic_api_key.arn
-      ANTHROPIC_MODEL       = var.anthropic_model
-      RATE_LIMIT_TABLE      = aws_dynamodb_table.rate_limit.name
+      ANTHROPIC_API_KEY_PARAM = aws_ssm_parameter.secret["anthropic_api_key"].name
+      ANTHROPIC_MODEL         = var.anthropic_model
+      RATE_LIMIT_TABLE        = aws_dynamodb_table.rate_limit.name
       } : {
-      SUPABASE_URL            = var.supabase_url
-      SUPABASE_SECRET_KEY_ARN = aws_secretsmanager_secret.supabase_secret_key.arn
+      SUPABASE_URL              = var.supabase_url
+      SUPABASE_SECRET_KEY_PARAM = aws_ssm_parameter.secret["supabase_secret_key"].name
     }
   }
   depends_on = [aws_cloudwatch_log_group.lambda, aws_iam_role_policy_attachment.lambda_logs]

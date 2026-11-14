@@ -13,7 +13,7 @@ Names in the specs (functions, tables, columns, claims, error codes, endpoints, 
 
 ## Deviation from the spec: Terraform instead of CDK
 
-The backend spec describes AWS infrastructure with CDK (`backend/infra`). This repo uses **Terraform** in `infra/` instead (requested by the owner). Everything else about the AWS design (Cognito Essentials + Google IdP + V2_0 pre-token trigger, HTTP API + JWT authorizer, private S3 + CloudFront OAC, Secrets Manager, region `ca-central-1`) stays as specified. Terraform outputs replace `cdk-outputs.json`: `terraform -chdir=infra output -json > infra/outputs.json`, and both `backend/scripts/write-frontend-config.ts` and `frontend/scripts/deploy.ts` read that file. Output names keep the spec's names (`WebBucketName`, `DistributionId`, `WebUrl`, …).
+The backend spec describes AWS infrastructure with CDK (`backend/infra`). This repo uses **Terraform** in `infra/` instead (requested by the owner). Everything else about the AWS design (Cognito Essentials + Google IdP + V2_0 pre-token trigger, HTTP API + JWT authorizer, private S3 + CloudFront OAC, region `ca-central-1`) stays as specified, except that secrets live in **SSM Parameter Store SecureString** parameters instead of Secrets Manager (no monthly charge). Terraform outputs replace `cdk-outputs.json`: `terraform -chdir=infra output -json > infra/outputs.json`, and both `backend/scripts/write-frontend-config.ts` and `frontend/scripts/deploy.ts` read that file. Output names keep the spec's names (`WebBucketName`, `DistributionId`, `WebUrl`, …).
 
 ## Layout
 
@@ -49,7 +49,7 @@ Infra (`cd infra`): `terraform init`, `terraform plan`, `terraform apply`, then 
 ## Rules
 
 - Region `ca-central-1` for everything (CloudFront is global; its ACM cert, if any, is in `us-east-1`).
-- Never commit secrets. Secrets go in AWS Secrets Manager or untracked `.env`. Commit `.env.example`.
+- Never commit secrets. Secrets go in SSM Parameter Store (SecureString) or untracked `.env`. Commit `.env.example`.
 - Steps that need a person (accounts, credentials, consoles) are marked **HUMAN** in the specs: print exactly what is needed and stop.
 - SQL: every RPC is `security definer`, `set search_path = public, pg_temp`, granted to `authenticated` only, raises errors via `app.raise(code, detail)`. JSON keys are snake_case.
 - Bump `work_orders.version` inside each RPC that changes a job (no blanket trigger).

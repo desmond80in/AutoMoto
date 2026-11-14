@@ -19,5 +19,6 @@ output "CognitoIssuer" {
 }
 
 output "SecretNames" {
-  value = [aws_secretsmanager_secret.supabase_secret_key.name, aws_secretsmanager_secret.google_client_secret.name, aws_secretsmanager_secret.anthropic_api_key.name]
+  description = "SSM SecureString parameters filled by backend/scripts/put-secrets.ts."
+  value       = [for p in aws_ssm_parameter.secret : p.name]
 }

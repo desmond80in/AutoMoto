@@ -9,7 +9,7 @@ in `docs/SPEC-BACKEND.md` sections 10–12 with the same design:
 | `lambdas.tf` | The three Lambdas (Node.js 20, ARM64) from `backend/dist`, least-privilege IAM, log groups, DynamoDB rate-limit table (TTL) |
 | `api.tf` | HTTP API with a Cognito JWT authorizer: `GET /health`, `POST /intake/visit`, `POST /intake/registration`; CORS; 5 rps / burst 10 |
 | `web.tf` | Private, versioned, encrypted S3 bucket; CloudFront with Origin Access Control, SPA fallback, HTTPS only, HTTP/2+3, no-cache for `index.html`/`config.json`, security headers (HSTS, CSP, Permissions-Policy, …); placeholder page |
-| `main.tf` | Secrets Manager secrets (created empty) |
+| `main.tf` | SSM SecureString parameters for the secrets (created with the placeholder `unset`; Terraform never touches the value afterwards) |
 | `outputs.tf` | `WebBucketName`, `DistributionId`, `WebUrl`, `UserPoolId`, `UserPoolClientId`, `CognitoDomain`, `ApiUrl`, `GoogleRedirectUri`, `CognitoIssuer` |
 
 ## Test (offline)
@@ -25,7 +25,8 @@ terraform test      # mocked providers: Essentials plan, V2_0 trigger, JWT issue
 Prerequisites: Terraform ≥ 1.7, AWS CLI credentials for the account (**HUMAN H2**:
 `aws sts get-caller-identity` works), Node 20+. Optionally copy `backend.tf.example` to `backend.tf` for S3 state.
 
-1. **Supabase project (HUMAN H1).** Create it in Canada (Central). Fill `backend/.env` from `.env.example`
+1. **Supabase project (HUMAN H1).** Create it in Canada (Central). Free plan for a demo, Pro for real customers
+   (see `backend/README.md`, "Supabase plan"). Fill `backend/.env` from `.env.example`
    (URL, ref, publishable key, `SUPABASE_DB_URL`).
 2. **Build the Lambdas:** `cd backend && npm ci && npm run build:lambdas`.
 3. **First apply (no Google yet):**

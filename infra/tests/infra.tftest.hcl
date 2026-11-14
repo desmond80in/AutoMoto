@@ -6,8 +6,8 @@ mock_provider "aws" {
   mock_data "aws_cloudfront_cache_policy" {
     defaults = { id = "658327ea-f89d-4fab-a63d-7e88639e58f6" }
   }
-  mock_data "aws_secretsmanager_secret_version" {
-    defaults = { secret_string = "test-google-secret" }
+  mock_data "aws_ssm_parameter" {
+    defaults = { value = "test-google-secret" }
   }
   mock_resource "aws_cloudfront_distribution" {
     defaults = { domain_name = "d111111abcdef8.cloudfront.net", arn = "arn:aws:cloudfront::123456789012:distribution/EDFDVBD6EXAMPLE", id = "EDFDVBD6EXAMPLE" }
@@ -30,8 +30,8 @@ mock_provider "aws" {
   mock_resource "aws_dynamodb_table" {
     defaults = { arn = "arn:aws:dynamodb:ca-central-1:123456789012:table/rate" }
   }
-  mock_resource "aws_secretsmanager_secret" {
-    defaults = { arn = "arn:aws:secretsmanager:ca-central-1:123456789012:secret:workshop/pov/x" }
+  mock_resource "aws_ssm_parameter" {
+    defaults = { arn = "arn:aws:ssm:ca-central-1:123456789012:parameter/workshop/pov/x" }
   }
   mock_resource "aws_cloudwatch_log_group" {
     defaults = { arn = "arn:aws:logs:ca-central-1:123456789012:log-group:x" }
@@ -140,6 +140,14 @@ run "api_stack" {
   assert {
     condition     = aws_dynamodb_table.rate_limit.ttl[0].enabled && aws_dynamodb_table.rate_limit.ttl[0].attribute_name == "expires_at"
     error_message = "Rate limit table needs TTL."
+  }
+  assert {
+    condition     = alltrue([for p in aws_ssm_parameter.secret : p.type == "SecureString" && p.tier == "Standard" && startswith(p.name, "/workshop/pov/")])
+    error_message = "Secrets are free-tier SecureString parameters under /workshop/pov/."
+  }
+  assert {
+    condition     = aws_lambda_function.fn["intake-api"].environment[0].variables["ANTHROPIC_API_KEY_PARAM"] == "/workshop/pov/anthropic-api-key" && aws_lambda_function.fn["cognito-pre-token"].environment[0].variables["SUPABASE_SECRET_KEY_PARAM"] == "/workshop/pov/supabase-secret-key"
+    error_message = "Lambdas get their secret parameter names."
   }
 }
 

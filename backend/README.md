@@ -49,8 +49,9 @@ unless `SUPABASE_URL` is localhost.
 
 ## Deploy
 
-1. **Supabase (HUMAN H1):** Pro organization, project in Canada (Central). Put URL, ref and publishable key in `backend/.env`
-   (copy `.env.example`), plus `SUPABASE_DB_URL` for the bootstrap script.
+1. **Supabase (HUMAN H1):** project in Canada (Central). The Free plan is fine for a demo; use Pro once real customer
+   data goes in (daily backups, no pausing). See "Supabase plan" below.
+   Put URL, ref and publishable key in `backend/.env` (copy `.env.example`), plus `SUPABASE_DB_URL` for the bootstrap script.
 2. **AWS (HUMAN H2):** CLI credentials for `ca-central-1`.
 3. **Lambdas:** `npm run build:lambdas` (Terraform zips `dist/<name>/`).
 4. **Terraform:** see [`../infra/README.md`](../infra/README.md). First apply without Google; it prints the Google redirect URI.
@@ -70,7 +71,7 @@ unless `SUPABASE_URL` is localhost.
 | Name | Used by | Notes |
 |---|---|---|
 | `AWS_REGION` | scripts | `ca-central-1` |
-| `APP_NAME`, `STAGE` | scripts, Terraform | secret names are `<app>/<stage>/<name>` |
+| `APP_NAME`, `STAGE` | scripts, Terraform | secret parameter names are `/<app>/<stage>/<name>` |
 | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_REF` | config, smoke | public values |
 | `SUPABASE_DB_URL` | bootstrap-owner | contains the DB password; `.env` only |
 | `GOOGLE_CLIENT_ID` | Terraform (`google_client_id`) | public |
@@ -78,8 +79,21 @@ unless `SUPABASE_URL` is localhost.
 | `WEB_EXTRA_ORIGINS` | Terraform, config | comma-separated, e.g. `http://localhost:5173` |
 | `OWNER_EMAIL`, `OWNER_NAME`, `SHOP_NAME`, `SHOP_TIMEZONE` | bootstrap-owner | |
 
-Lambda environment (set by Terraform): `SUPABASE_URL`, `SUPABASE_SECRET_KEY_ARN`, `ANTHROPIC_API_KEY_ARN`,
-`ANTHROPIC_MODEL`, `RATE_LIMIT_TABLE`. Secrets are read from Secrets Manager at cold start, never from git.
+Lambda environment (set by Terraform): `SUPABASE_URL`, `SUPABASE_SECRET_KEY_PARAM`, `ANTHROPIC_API_KEY_PARAM`,
+`ANTHROPIC_MODEL`, `RATE_LIMIT_TABLE`. Secrets are SSM Parameter Store SecureString parameters (standard tier, AWS
+managed `aws/ssm` key, no monthly charge), read once per container at cold start, never from git.
+
+### Supabase plan
+
+| | Free (demo) | Pro (real customers) |
+|---|---|---|
+| Cost | $0 | US$25/month (includes the Micro compute credit) |
+| Pausing | Paused after 7 days without activity: restore it from the dashboard before a demo | Never paused |
+| Backups | None | Daily, 7 days kept |
+| Database / file storage | 500 MB / 1 GB (years of demo data) | 8 GB / 100 GB |
+
+Before relying on Free, check in the dashboard that the project can enable third-party auth (Amazon Cognito) in
+Canada (Central). Upgrading later is a plan change on the same project: no data move, no config change.
 
 ## Error codes
 
@@ -144,7 +158,7 @@ on topic `shop:<shop_id>` for the display.
 - **Add staff:** Administrator → Staff & roles → Add staff member (Gmail address, roles, PIN). They sign in with Google.
   Deactivating staff blocks their next token refresh (pre-token trigger) and every RPC immediately.
 - **Rotate secrets:** `npx tsx scripts/put-secrets.ts <name>`. Lambdas cache secrets per container; force a refresh with
-  `terraform apply -replace=aws_lambda_function.intake_api` (or any config change), or wait for containers to recycle.
+  `terraform apply -replace='aws_lambda_function.fn["intake-api"]'` (or any config change), or wait for containers to recycle.
   Rotating the Supabase secret key: create a new key in the Supabase dashboard, store it, redeploy, then delete the old key.
 - **Redeploy:** `npm run build:lambdas && terraform -chdir=../infra apply`. Database changes: new migration file, test
   locally (`supabase db reset && supabase test db`), then `supabase db push`.
