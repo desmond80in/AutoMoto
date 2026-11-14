@@ -44,6 +44,15 @@ resource "aws_lambda_permission" "cognito" {
 resource "aws_cognito_user_pool_domain" "web" {
   domain       = "${local.name}-${random_string.domain_suffix.result}"
   user_pool_id = aws_cognito_user_pool.staff.id
+  # Managed login (v2) honours the OIDC `prompt` parameter, so the SPA can ask Google for its account chooser.
+  managed_login_version = 2
+}
+
+# Managed login needs a branding style per app client; the defaults are fine (users go straight to Google).
+resource "aws_cognito_managed_login_branding" "web" {
+  user_pool_id                = aws_cognito_user_pool.staff.id
+  client_id                   = aws_cognito_user_pool_client.web.id
+  use_cognito_provided_values = true
 }
 
 # Google identity provider: enabled once google_client_id is set and the client secret is stored (HUMAN H3).

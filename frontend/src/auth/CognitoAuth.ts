@@ -39,8 +39,9 @@ export class CognitoAuth implements AuthAdapter {
     });
   }
 
+  /** Always show Google's account chooser, so a shared device can switch staff after sign-out. */
   signIn(): Promise<void> {
-    return signInWithRedirect({ provider: 'Google' });
+    return signInWithRedirect({ provider: 'Google', options: { prompt: 'SELECT_ACCOUNT' } });
   }
 
   /** Amplify completes the code exchange on /auth/callback; wait until tokens are available. */
