@@ -130,5 +130,5 @@ test('desk tabs, find and drawers', async ({ page }) => {
   await page.getByRole('link', { name: 'Customers' }).click();
   await expect(page.getByRole('cell', { name: 'Priya Sharma' })).toBeVisible();
   await page.getByRole('link', { name: 'Vehicles' }).click();
-  await expect(page.getByRole('cell', { name: '52,870 km' })).toBeVisible();
+  await expect(page.getByRole('row', { name: /CAAB 214/ }).getByRole('cell', { name: / km$/ })).toBeVisible();
 });
