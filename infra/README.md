@@ -44,7 +44,7 @@ Prerequisites: Terraform ≥ 1.7, AWS CLI credentials for the account (**HUMAN H
 6. **Second apply with Google:** set `google_client_id` in `terraform.tfvars`, then `terraform apply`.
 7. **Supabase third-party auth:** Supabase dashboard → Authentication → Third-party auth → Amazon Cognito, with the
    `UserPoolId` output and region `ca-central-1`.
-8. **Database:** `cd backend && npx supabase link --project-ref <ref> && npx supabase db push` (migrations only).
+8. **Database:** `cd backend && npx supabase link --project-ref <ref> && npx supabase db push --remote` (migrations only).
 9. **Owner (HUMAN H5):** set `OWNER_EMAIL`, `OWNER_NAME`, `SHOP_NAME` in `backend/.env`, then
    `npx tsx scripts/bootstrap-owner.ts`.
 10. **Frontend:**

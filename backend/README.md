@@ -60,7 +60,7 @@ unless `SUPABASE_URL` is localhost.
    Apply Terraform again so Cognito gets the Google provider.
 7. **Supabase third-party auth:** dashboard → Authentication → Third-party auth → Amazon Cognito, user pool ID from
    `terraform output UserPoolId`, region `ca-central-1`.
-8. **Database:** `npx supabase link --project-ref <ref>` then `npx supabase db push` (migrations only, never the seed).
+8. **Database:** `npx supabase link --project-ref <ref>` then `npx supabase db push --remote` (migrations only, never the seed; CLI 3.x targets the local stack without `--remote`).
 9. **Owner (HUMAN H5):** set `OWNER_EMAIL`, `OWNER_NAME`, `SHOP_NAME`, then `npx tsx scripts/bootstrap-owner.ts`.
 10. **Frontend config:** `terraform -chdir=../infra output -json > ../infra/outputs.json` and
     `npx tsx scripts/write-frontend-config.ts` → `frontend/public/config.json`.
@@ -162,7 +162,7 @@ on topic `shop:<shop_id>` for the display.
   `terraform apply -replace='aws_lambda_function.fn["intake-api"]'` (or any config change), or wait for containers to recycle.
   Rotating the Supabase secret key: create a new key in the Supabase dashboard, store it, redeploy, then delete the old key.
 - **Redeploy:** `npm run build:lambdas && terraform -chdir=../infra apply`. Database changes: new migration file, test
-  locally (`supabase db reset && supabase test db`), then `supabase db push`.
+  locally (`supabase db reset && supabase test db`), then `supabase db push --remote`.
 - **Restore a backup:** Supabase dashboard → Database → Backups (daily on Pro; enable PITR for finer restores). Restore to
   a new project if possible, verify, then switch `SUPABASE_URL`/keys in `.env`, rewrite `config.json` and redeploy.
   The signatures bucket is not part of database backups; copy it with the Storage API if needed.
