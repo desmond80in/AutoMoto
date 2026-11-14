@@ -12,7 +12,9 @@
     "test": "vitest run",
     "test:db": "supabase test db",
     "build:lambdas": "tsx scripts/build-lambdas.ts",
-    "dev:token": "tsx scripts/dev-token-server.ts"
+    "dev:token": "tsx scripts/dev-token-server.ts",
+    "demo:load": "tsx scripts/demo-data.ts load",
+    "demo:remove": "tsx scripts/demo-data.ts remove"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
