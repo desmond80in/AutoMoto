@@ -50,7 +50,7 @@ export function Arrivals() {
       {accepted.length > 0 && (
         <div className="sec">
           <h3>In the workshop queue ({accepted.length})</h3>
-          <div className="tbl-wrap">
+          <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Workshop queue">
             <table>
               <thead>
                 <tr>

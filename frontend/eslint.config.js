@@ -16,6 +16,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       // Inputs are labelled through wrapping <Field>/<label htmlFor>; autofocus is intended on kiosk steps.
       'jsx-a11y/no-autofocus': 'off',
+      // Scrollable table wrappers are focusable regions so keyboard users can scroll them (axe scrollable-region-focusable).
+      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'] }],
       'jsx-a11y/label-has-associated-control': ['error', { assert: 'either', depth: 3 }],
     },
   },

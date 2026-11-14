@@ -47,7 +47,7 @@ export function JobsBoard() {
       {recent.length > 0 && (
         <div className="stack-sm">
           <h3>Recently picked up</h3>
-          <div className="tbl-wrap">
+          <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Recently picked up">
             <table>
               <thead>
                 <tr>

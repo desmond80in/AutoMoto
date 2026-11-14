@@ -414,7 +414,7 @@ export function JobDrawer({ id }: { id: string }) {
 
       <div className="sec">
         <h3>Customer concern</h3>
-        <div className="tbl-wrap">
+        <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Customer concerns">
           <table className="lines">
             <thead>
               <tr>
@@ -473,7 +473,7 @@ export function JobDrawer({ id }: { id: string }) {
 
       <div className="sec">
         <h3>Repair details</h3>
-        <div className="tbl-wrap">
+        <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Repair details">
           <table className="lines">
             <thead>
               <tr>

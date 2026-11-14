@@ -22,7 +22,7 @@ export function CustomersTab() {
   if (!data) return <p className="muted">Loading…</p>;
   if (!data.length) return <p className="muted">No customers yet.</p>;
   return (
-    <div className="tbl-wrap">
+    <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Customers">
       <table>
         <thead>
           <tr>
@@ -62,7 +62,7 @@ export function VehiclesTab() {
   if (!data) return <p className="muted">Loading…</p>;
   if (!data.length) return <p className="muted">No vehicles yet.</p>;
   return (
-    <div className="tbl-wrap">
+    <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Vehicles">
       <table>
         <thead>
           <tr>

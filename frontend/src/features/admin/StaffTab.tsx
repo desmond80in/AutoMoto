@@ -21,7 +21,7 @@ export function StaffTab() {
           + Add staff member
         </button>
       </div>
-      <div className="tbl-wrap">
+      <div className="tbl-wrap" tabIndex={0} role="region" aria-label="Staff">
         <table>
           <thead>
             <tr>

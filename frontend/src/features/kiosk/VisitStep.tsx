@@ -14,9 +14,21 @@ import { useReady } from '../../session/SessionProvider';
 import type { Dispatch } from './KioskPage';
 import type { KioskState } from './reducer';
 
-export const REASON_LABELS: Record<Reason, string> = { mechanical: 'Mechanical', body: 'Body work', accident: 'Accident / tow' };
+export const REASON_LABELS: Record<Reason, string> = {
+  mechanical: 'Mechanical',
+  body: 'Body work',
+  accident: 'Accident / tow',
+};
 
-export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch: Dispatch; setDrawing: (d: boolean) => void }) {
+export function VisitStep({
+  s,
+  dispatch,
+  setDrawing,
+}: {
+  s: KioskState;
+  dispatch: Dispatch;
+  setDrawing: (d: boolean) => void;
+}) {
   const { api, intake, cfg } = useApp();
   const { me } = useReady();
   const toast = useToast();
@@ -37,7 +49,8 @@ export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch
   const onSigChange = useCallback((has: boolean) => setHasSig(has), []);
 
   const fill = async () => {
-    if (story.trim().length < 8) return setAi({ busy: false, msg: 'Describe the problem first, by typing or talking.' });
+    if (story.trim().length < 8)
+      return setAi({ busy: false, msg: 'Describe the problem first, by typing or talking.' });
     setAi({ busy: true, msg: null });
     try {
       const r = await intake.visit(story.trim(), vehicleName(v), v.last_odometer_km);
@@ -105,7 +118,12 @@ export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch
             {c.firstName} · Phone ending {c.phoneLast4}
           </span>
         </div>
-        <button type="button" className="btn sm ghost" style={{ marginLeft: 'auto' }} onClick={() => dispatch({ type: 'changeVehicle' })}>
+        <button
+          type="button"
+          className="btn sm ghost"
+          style={{ marginLeft: 'auto' }}
+          onClick={() => dispatch({ type: 'changeVehicle' })}
+        >
           Change
         </button>
       </div>
@@ -154,7 +172,9 @@ export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch
           value={odometer}
           onChange={(e) => setOdometer(e.target.value)}
           inputMode="numeric"
-          placeholder={v.last_odometer_km ? `Last recorded ${v.last_odometer_km.toLocaleString('en-CA')}` : 'e.g. 52 870'}
+          placeholder={
+            v.last_odometer_km ? `Last recorded ${v.last_odometer_km.toLocaleString('en-CA')}` : 'e.g. 52 870'
+          }
           aria-describedby="odo-hint"
         />
         <span className="hint" id="odo-hint">
@@ -177,7 +197,12 @@ export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch
               onChange={(e) => setConcerns((p) => p.map((x, j) => (j === i ? e.target.value : x)))}
             />
             {concerns.length > 1 ? (
-              <button type="button" className="x" aria-label={`Remove concern ${i + 1}`} onClick={() => setConcerns((p) => p.filter((_, j) => j !== i))}>
+              <button
+                type="button"
+                className="x"
+                aria-label={`Remove concern ${i + 1}`}
+                onClick={() => setConcerns((p) => p.filter((_, j) => j !== i))}
+              >
                 ×
               </button>
             ) : (
@@ -197,9 +222,10 @@ export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch
       <div className="stack-sm">
         <span className="lbl">Authorization</span>
         <p className="auth">
-          By signing, I authorize the shop to inspect and repair this vehicle with the necessary parts and materials, and to drive it for testing,
-          inspection or delivery at my risk. I understand a mechanic's lien applies to the vehicle for the cost of repairs, that storage charges may apply
-          if it is not collected within 24 hours of being told the work is done, and that the shop may keep the vehicle until the bill is paid in full.
+          By signing, I authorize the shop to inspect and repair this vehicle with the necessary parts and materials,
+          and to drive it for testing, inspection or delivery at my risk. I understand a mechanic's lien applies to the
+          vehicle for the cost of repairs, that storage charges may apply if it is not collected within 24 hours of
+          being told the work is done, and that the shop may keep the vehicle until the bill is paid in full.
           {cfg.stage !== 'prod' && (
             <>
               {' '}
@@ -229,11 +255,13 @@ export function VisitStep({ s, dispatch, setDrawing }: { s: KioskState; dispatch
         </label>
       </div>
       {errors.length > 0 && (
-        <ul className="err" role="alert" style={{ margin: 0, paddingLeft: 20 }}>
-          {errors.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
+        <div role="alert">
+          <ul className="err" style={{ margin: 0, paddingLeft: 20 }}>
+            {errors.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
+        </div>
       )}
       <div className="row">
         <button className="btn primary big" disabled={busy}>

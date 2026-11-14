@@ -56,11 +56,13 @@ const vehicleRef = (id: string, v: VehicleDraft): KioskVehicleRef => ({
 function ErrorList({ errors }: { errors: string[] }) {
   if (!errors.length) return null;
   return (
-    <ul className="err" role="alert" style={{ margin: 0, paddingLeft: 20 }}>
-      {errors.map((e) => (
-        <li key={e}>{e}</li>
-      ))}
-    </ul>
+    <div role="alert">
+      <ul className="err" style={{ margin: 0, paddingLeft: 20 }}>
+        {errors.map((e) => (
+          <li key={e}>{e}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -71,7 +73,11 @@ export function RegisterStep({ dispatch }: { dispatch: Dispatch }) {
   const [v, setV] = useState<VehicleDraft>(blankVehicle);
   const [vKey, setVKey] = useState(0);
   const [story, setStory] = useState('');
-  const [ai, setAi] = useState<{ busy: boolean; msg: string | null; filled: boolean }>({ busy: false, msg: null, filled: false });
+  const [ai, setAi] = useState<{ busy: boolean; msg: string | null; filled: boolean }>({
+    busy: false,
+    msg: null,
+    filled: false,
+  });
   const [errors, setErrors] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -112,7 +118,10 @@ export function RegisterStep({ dispatch }: { dispatch: Dispatch }) {
     if (errs.length) return;
     setBusy(true);
     try {
-      const r = await api.kioskRegister({ name: c.name.trim(), phone: normPhone(c.phone), email: c.email.trim() || undefined }, toVehicleInput(v));
+      const r = await api.kioskRegister(
+        { name: c.name.trim(), phone: normPhone(c.phone), email: c.email.trim() || undefined },
+        toVehicleInput(v),
+      );
       dispatch({
         type: 'vehicleSaved',
         customer: { id: r.customer_id, firstName: r.first_name, phoneLast4: normPhone(c.phone).slice(-4) },
@@ -153,19 +162,36 @@ export function RegisterStep({ dispatch }: { dispatch: Dispatch }) {
           <label className="lbl" htmlFor="rg-name">
             Full name
           </label>
-          <input id="rg-name" value={c.name} onChange={(e) => setC({ ...c, name: e.target.value })} autoComplete="name" />
+          <input
+            id="rg-name"
+            value={c.name}
+            onChange={(e) => setC({ ...c, name: e.target.value })}
+            autoComplete="name"
+          />
         </div>
         <div className="field">
           <label className="lbl" htmlFor="rg-phone">
             Phone number
           </label>
-          <input id="rg-phone" value={c.phone} onChange={(e) => setC({ ...c, phone: e.target.value })} inputMode="tel" placeholder="416 555 0100" />
+          <input
+            id="rg-phone"
+            value={c.phone}
+            onChange={(e) => setC({ ...c, phone: e.target.value })}
+            inputMode="tel"
+            placeholder="416 555 0100"
+          />
         </div>
         <div className="field">
           <label className="lbl" htmlFor="rg-email">
             Email <span style={{ textTransform: 'none' }}>(optional)</span>
           </label>
-          <input id="rg-email" type="email" inputMode="email" value={c.email} onChange={(e) => setC({ ...c, email: e.target.value })} />
+          <input
+            id="rg-email"
+            type="email"
+            inputMode="email"
+            value={c.email}
+            onChange={(e) => setC({ ...c, email: e.target.value })}
+          />
         </div>
       </div>
       <h3>Your vehicle</h3>
@@ -245,10 +271,18 @@ export function LinkOwnerStep({ s, dispatch }: { s: KioskState; dispatch: Dispat
     if (errs.length) return;
     setBusy(true);
     try {
-      const r = await api.kioskLinkOwner(v.id, known ? { customer_id: known.id } : { phone: normPhone(phone), name: name.trim() }, mode);
+      const r = await api.kioskLinkOwner(
+        v.id,
+        known ? { customer_id: known.id } : { phone: normPhone(phone), name: name.trim() },
+        mode,
+      );
       dispatch({
         type: 'linked',
-        customer: { id: r.customer_id, firstName: r.first_name, phoneLast4: known ? known.phoneLast4 : normPhone(phone).slice(-4) },
+        customer: {
+          id: r.customer_id,
+          firstName: r.first_name,
+          phoneLast4: known ? known.phoneLast4 : normPhone(phone).slice(-4),
+        },
       });
     } catch (x) {
       const msg = errorMessage(x);
@@ -263,7 +297,13 @@ export function LinkOwnerStep({ s, dispatch }: { s: KioskState; dispatch: Dispat
         <PlateChip plate={v.plate} size="lg" />
         <div>
           <h2>{vehicleName(v)}</h2>
-          <p className="muted">{s.owners.length ? `On file with ${ownerNames}.` : s.othersOwn ? 'This vehicle is on file with another customer.' : 'No current owner on file.'}</p>
+          <p className="muted">
+            {s.owners.length
+              ? `On file with ${ownerNames}.`
+              : s.othersOwn
+                ? 'This vehicle is on file with another customer.'
+                : 'No current owner on file.'}
+          </p>
         </div>
       </div>
       {known ? (
@@ -279,13 +319,25 @@ export function LinkOwnerStep({ s, dispatch }: { s: KioskState; dispatch: Dispat
               <label className="lbl" htmlFor="lk-phone">
                 Phone number
               </label>
-              <input id="lk-phone" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="416 555 0100" autoFocus />
+              <input
+                id="lk-phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                inputMode="tel"
+                placeholder="416 555 0100"
+                autoFocus
+              />
             </div>
             <div className="field">
               <label className="lbl" htmlFor="lk-name">
                 Full name
               </label>
-              <input id="lk-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Only needed if you're new" />
+              <input
+                id="lk-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Only needed if you're new"
+              />
             </div>
           </div>
         </>
@@ -293,14 +345,28 @@ export function LinkOwnerStep({ s, dispatch }: { s: KioskState; dispatch: Dispat
       {s.othersOwn && (
         <div className="radio-list" role="radiogroup" aria-label="Your connection to this vehicle">
           <label className="radio">
-            <input type="radio" name="lkmode" value="transfer" checked={mode === 'transfer'} onChange={() => setMode('transfer')} />
+            <input
+              type="radio"
+              name="lkmode"
+              value="transfer"
+              checked={mode === 'transfer'}
+              onChange={() => setMode('transfer')}
+            />
             <span>
               <b>I bought this vehicle</b>
-              <span className="muted">The previous owner no longer has it. The service desk will confirm the change.</span>
+              <span className="muted">
+                The previous owner no longer has it. The service desk will confirm the change.
+              </span>
             </span>
           </label>
           <label className="radio">
-            <input type="radio" name="lkmode" value="co_owner" checked={mode === 'co_owner'} onChange={() => setMode('co_owner')} />
+            <input
+              type="radio"
+              name="lkmode"
+              value="co_owner"
+              checked={mode === 'co_owner'}
+              onChange={() => setMode('co_owner')}
+            />
             <span>
               <b>I share it with the owner</b>
               <span className="muted">For example a spouse, family member or business partner.</span>

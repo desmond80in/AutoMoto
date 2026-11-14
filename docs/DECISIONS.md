@@ -13,3 +13,11 @@ One line per decision not fixed by the specs.
 - 2026-11-13 Job summaries include extra keys beyond the spec (vehicle_id, customer_id, concerns[], safety_note, completed_at, picked_up_at, odometer_km) for the arrivals cards; the documented keys are all present.
 - 2026-11-13 Intake Lambda uses the official `@anthropic-ai/sdk` with structured outputs (`output_config.format`) plus the zod clamp. `temperature` is omitted (Claude Haiku 5.5 rejects non-default sampling parameters with a 400); `output_config.effort: "low"` keeps thinking short; `max_tokens` is 2000 (not 800) because thinking counts toward it.
 - 2026-11-13 Intake rate limit (30 calls / 10 min per staff) is kept in a DynamoDB table with TTL (`RATE_LIMIT_TABLE`); without that env var (local/dev) it falls back to an in-memory per-container counter.
+- 2026-11-13 Frontend styles are the prototype's global stylesheet (src/design/*.css, same class names) rather than CSS modules per component, so screens match the approved prototype exactly.
+- 2026-11-13 "Order received by" in the job drawer is shown read-only with a "Set to me" button for front desk/admin: list_staff is admin-only, so front desk can't pick other staff.
+- 2026-11-13 Drawers are URL-driven (?job=, ?vehicle=, ?customer=, ?tag=, ?staff=) and each one opened is a history entry, so Back works; the job tag is a drawer with a print stylesheet.
+- 2026-11-13 Realtime: the client calls realtime.setAuth() before joining and every 5 minutes (otherwise it joins with the publishable key and RLS/private channels reject it); channels are created only after auth resolves (React StrictMode double-mount).
+- 2026-11-13 Unsaved job edits are saved first when a status button is pressed, so a transition never discards them.
+- 2026-11-13 Kiosk visit summary shows first name + "Phone ending NNNN" (the kiosk never receives full names or phones).
+- 2026-11-13 "+ Start work order" in the vehicle drawer asks for the first concern (create_work_order requires one).
+- 2026-11-13 e2e global setup resets the DB and waits until local Realtime delivers a change again (after db reset the local replication slot is rebuilt and early changes are dropped).

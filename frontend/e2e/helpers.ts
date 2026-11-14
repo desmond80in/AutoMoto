@@ -9,6 +9,7 @@ export const SAM = 'sam.tech@example.com';
 export async function signIn(page: Page, email: string) {
   await page.goto('/login');
   await page.getByRole('button', { name: new RegExp(email.replace('.', '\\.')) }).click();
+  await page.waitForURL((u) => u.pathname !== '/login');
 }
 
 /** Sign in and pick a role on the role picker (multi-role staff). */
@@ -16,6 +17,7 @@ export async function signInAs(page: Page, email: string, role: string) {
   await signIn(page, email);
   await expect(page.getByRole('heading', { name: /Which role is this device for/ })).toBeVisible();
   await page.getByRole('button', { name: new RegExp(`^${role}`) }).click();
+  await page.waitForURL((u) => !u.pathname.startsWith('/role'));
 }
 
 export async function expectNoSeriousA11y(page: Page, name: string) {

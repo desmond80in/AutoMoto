@@ -37,7 +37,11 @@ export function KioskPage() {
       {s.step !== 'done' && (
         <ol className="steps" aria-label="Check-in progress">
           {LABELS.map((l, i) => (
-            <li key={l} className={i < idx ? 'done' : i === idx ? 'on' : ''} aria-current={i === idx ? 'step' : undefined}>
+            <li
+              key={l}
+              className={i < idx ? 'done' : i === idx ? 'on' : ''}
+              aria-current={i === idx ? 'step' : undefined}
+            >
               {l}
             </li>
           ))}
@@ -73,7 +77,12 @@ function Body({ s, dispatch, setDrawing }: { s: KioskState; dispatch: Dispatch; 
             <p className="lede">Check the number or plate, or register now. It takes about a minute.</p>
           </div>
           <div className="row">
-            <button type="button" className="btn primary big" onClick={() => dispatch({ type: 'startRegister' })} autoFocus>
+            <button
+              type="button"
+              className="btn primary big"
+              onClick={() => dispatch({ type: 'startRegister' })}
+              autoFocus
+            >
               Register as a new customer
             </button>
             <button type="button" className="btn big" onClick={() => dispatch({ type: 'reset' })}>
@@ -156,7 +165,11 @@ function PickCustomerStep({ s, dispatch }: { s: KioskState; dispatch: Dispatch }
       const r = await api.kioskCustomerVehicles(id);
       dispatch({
         type: 'customerVehicles',
-        customer: { id: r.customer.id, firstName: r.customer.first_name || maskedName.split(' ')[0]!, phoneLast4: r.customer.phone_last4 },
+        customer: {
+          id: r.customer.id,
+          firstName: r.customer.first_name || maskedName.split(' ')[0]!,
+          phoneLast4: r.customer.phone_last4,
+        },
         vehicles: r.vehicles,
       });
     } catch (e) {
@@ -190,7 +203,9 @@ function VehicleTile({ v, onClick }: { v: KioskVehicle; onClick: () => void }) {
       <PlateChip plate={v.plate} />
       <span className="t-title">{vehicleName(v)}</span>
       <span className="muted small">
-        {v.last_visit_at ? `Last visit ${fmtDate(v.last_visit_at)}${v.last_odometer_km ? ` · ${km(v.last_odometer_km)}` : ''}` : 'No visits yet'}
+        {v.last_visit_at
+          ? `Last visit ${fmtDate(v.last_visit_at)}${v.last_odometer_km ? ` · ${km(v.last_odometer_km)}` : ''}`
+          : 'No visits yet'}
       </span>
       {v.role === 'co_owner' && <span className="tag">Shared vehicle</span>}
     </button>
@@ -201,7 +216,11 @@ function PickVehicleStep({ s, dispatch }: { s: KioskState; dispatch: Dispatch })
   return (
     <div className="card">
       <h1>Welcome back, {s.customer?.firstName}.</h1>
-      <p className="lede">{s.vehicles.length ? 'Which vehicle are you bringing in today?' : 'Tell us about the vehicle you brought in today.'}</p>
+      <p className="lede">
+        {s.vehicles.length
+          ? 'Which vehicle are you bringing in today?'
+          : 'Tell us about the vehicle you brought in today.'}
+      </p>
       <div className="tiles">
         {s.vehicles.map((v) => (
           <VehicleTile key={v.id} v={v} onClick={() => dispatch({ type: 'chooseVehicle', vehicle: v })} />
@@ -235,7 +254,12 @@ function WhoStep({ s, dispatch }: { s: KioskState; dispatch: Dispatch }) {
       </p>
       <div className="tiles">
         {s.owners.map((o) => (
-          <button key={o.customer_id} type="button" className="tile" onClick={() => dispatch({ type: 'chooseOwner', owner: o })}>
+          <button
+            key={o.customer_id}
+            type="button"
+            className="tile"
+            onClick={() => dispatch({ type: 'chooseOwner', owner: o })}
+          >
             <span className="t-title">{o.masked_name}</span>
             <span className="muted">Phone ending {o.phone_last4}</span>
             {o.role === 'co_owner' && <span className="tag">Co-owner</span>}
@@ -264,7 +288,8 @@ function DoneStep({ s, dispatch }: { s: KioskState; dispatch: Dispatch }) {
       </div>
       <h1>You're checked in, {d.first_name}.</h1>
       <p className="lede" style={{ margin: '0 auto' }}>
-        Please hand your keys to the front desk. We'll call {d.phone_masked} with an estimate before doing any work beyond the inspection.
+        Please hand your keys to the front desk. We'll call {d.phone_masked} with an estimate before doing any work
+        beyond the inspection.
       </p>
       {s.vehicle && (
         <div className="row" style={{ justifyContent: 'center' }}>
