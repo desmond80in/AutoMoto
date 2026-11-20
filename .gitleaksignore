@@ -1,0 +1,2 @@
+# Supabase CLI's default local publishable key (same for every local stack, only valid against 127.0.0.1:54321).
+dfe25d8dad0f4d4945020d83441efc4d515a5db0:frontend/public/config.example.json:generic-api-key:5
