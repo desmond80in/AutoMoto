@@ -45,8 +45,8 @@ The local database runs in Docker through the Supabase CLI, which `npm` installs
 ### 2. Clone, set up, run
 
 ```bash
-git clone <this-repo-url> workshop-check-in
-cd workshop-check-in
+git clone https://github.com/desmond80in/AutoMoto.git
+cd AutoMoto
 npm run setup      # checks Node + Docker, installs dependencies, creates frontend/public/config.json
 npm run dev        # starts Supabase (with demo data), dev sign-in, mock AI intake and the app
 ```
