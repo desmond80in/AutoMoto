@@ -1,5 +1,6 @@
 // npm run dev:stack - local Supabase (reset with seed), dev token server, mock intake API and Vite.
 import { spawn, spawnSync } from 'node:child_process';
+import { copyFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,6 +15,12 @@ const bg = (name: string, cmd: string, args: string[], cwd: string) => {
   p.on('exit', (code) => console.log(`${name} exited (${code})`));
   return p;
 };
+
+const cfg = join(front, 'public', 'config.json');
+if (!existsSync(cfg)) {
+  copyFileSync(join(front, 'public', 'config.example.json'), cfg);
+  console.log('Created public/config.json from config.example.json (local dev mode)');
+}
 
 run('npx', ['supabase', 'start'], back);
 if (!process.argv.includes('--no-reset')) run('npx', ['supabase', 'db', 'reset'], back);

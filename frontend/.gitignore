@@ -4,3 +4,4 @@ public/config.json
 playwright-report
 test-results
 e2e/.auth
+*.tsbuildinfo
